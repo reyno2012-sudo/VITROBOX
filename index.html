@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MORROR ART A2 - 悬浮歌词音箱桌面播放器</title>
+    <meta name="description" content="1:1 复刻 MORROR ART A2 实体音响设计与鱼缸空间悬浮动态歌词，支持音频拖拽与动态声学振膜反馈。" />
+    <meta property="og:title" content="MORROR ART A2 - 悬浮歌词音箱桌面播放器" />
+    <meta property="og:description" content="1:1 复刻 MORROR ART A2 实体音响设计与鱼缸空间悬浮动态歌词，支持音频拖拽与动态声学振膜反馈。" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Oswald:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,600&family=Syne:wght@700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var code = params.get('code');
+          var error = params.get('error');
+          if (window.opener && (code || error)) {
+            if (code) {
+              window.opener.postMessage({ type: 'SPOTIFY_PKCE_CODE', code: code }, '*');
+              document.write('<div style="background:#121418;color:#1DB954;font-family:sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;"><div><h2 style="font-size:20px;margin-bottom:8px;">✓ Spotify 授权成功</h2><p style="color:#8e98a5;font-size:13px;">正在返回播放器同步曲库与歌词，窗口即将关闭...</p></div></div>');
+              setTimeout(function() { window.close(); }, 600);
+            } else if (error) {
+              window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', error: error }, '*');
+              setTimeout(function() { window.close(); }, 1200);
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-[#0b0c10] text-[#e0e2ec] antialiased select-none overflow-hidden">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

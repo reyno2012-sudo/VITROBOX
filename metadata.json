@@ -1,0 +1,6 @@
+{
+  "name": "MORROR ART A2 - 悬浮歌词音箱桌面播放器",
+  "description": "1:1 复刻 MORROR ART A2 实体音响设计与鱼缸空间悬浮动态歌词，支持音频拖拽与动态声学振膜反馈。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
