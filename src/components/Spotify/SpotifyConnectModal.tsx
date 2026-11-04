@@ -83,9 +83,15 @@ export function SpotifyConnectModal({
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Never prefill or publish an application owner's Client ID. Every visitor
-  // must explicitly provide the ID from their own Spotify Developer app.
-  const [pkceClientId, setPkceClientId] = useState('');
+  // Restore only the ID previously entered in this browser; there is no
+  // built-in project or developer Client ID.
+  const [pkceClientId, setPkceClientId] = useState(() => {
+    try {
+      return localStorage.getItem('sp_client_id') || '';
+    } catch {
+      return '';
+    }
+  });
   const [pkceCopied, setPkceCopied] = useState(false);
   const currentAppUrl =
     typeof window !== 'undefined'
@@ -848,14 +854,14 @@ export function SpotifyConnectModal({
                     type="text"
                     value={pkceClientId}
                     onChange={(e) => setPkceClientId(e.target.value)}
-                    placeholder="粘贴您自己的 Client ID（此处不会提供默认 ID）"
+                    placeholder="粘贴您自己的 Spotify Client ID"
                     autoComplete="off"
                     autoCapitalize="none"
                     spellCheck={false}
                     className="w-full px-3.5 py-2.5 bg-[#0f1116] border border-[#2e3748] rounded-xl text-xs text-white placeholder-neutral-600 focus:outline-none focus:border-[#fecc11] font-mono shadow-inner"
                   />
                   <p className="text-[10px] leading-relaxed text-[#717b88] px-0.5">
-                    Client ID 由 Spotify 开发者中心生成，仅保存在您当前设备的浏览器中；VITROBOX 不内置或共享任何测试 ID。
+                    授权时填写的 Client ID 会保存在此浏览器中，方便下次连接；您可以随时修改。清除浏览器数据后需要重新填写。
                   </p>
                 </div>
 
