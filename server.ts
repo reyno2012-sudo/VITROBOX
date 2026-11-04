@@ -93,7 +93,7 @@ function getRedirectUri(req: Request): string {
   return `${proto}://${host}/auth/callback`;
 }
 
-// Helper: Extract session ID from Authorization header, cookie, or most recent active session fallback
+// Helper: Extract only the requesting user's session ID.
 function getSessionId(req: Request): string | null {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -104,13 +104,6 @@ function getSessionId(req: Request): string | null {
   if (req.cookies && req.cookies.spotify_session) {
     const cookieToken = req.cookies.spotify_session;
     if (sessions.has(cookieToken)) return cookieToken;
-  }
-  // Fallback to most recent active session (prevents logout on cross-origin header/cookie loss)
-  if (sessions.size > 0) {
-    const sorted = Array.from(sessions.entries()).sort(
-      (a, b) => (b[1].expiresAt || 0) - (a[1].expiresAt || 0)
-    );
-    return sorted[0][0];
   }
   return null;
 }
