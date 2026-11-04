@@ -11,7 +11,8 @@ import { SpotifyConnectModal } from './components/Spotify/SpotifyConnectModal';
 import { LyricsCorrectionModal } from './components/LyricsCorrectionModal';
 import { useSpotifySync } from './hooks/useSpotifySync';
 import { parseLrc } from './utils/lrcParser';
-import { Sparkles, Music2, Maximize2, Minimize2, FilePenLine } from 'lucide-react';
+import { Sparkles, Music2, Maximize2, Minimize2, FilePenLine, Mail } from 'lucide-react';
+import { ContactModal } from './components/ContactModal';
 
 const PLAYER_BACKGROUNDS = [
   { name: '石墨灰', color: '#090c0f', glow: 'rgba(72, 83, 92, .16)' },
@@ -38,6 +39,7 @@ export default function App() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isSpotifyModalOpen, setIsSpotifyModalOpen] = useState(false);
   const [isLyricsCorrectionOpen, setIsLyricsCorrectionOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
   const [showGuideTip, setShowGuideTip] = useState(true);
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [frameMaterialIndex, setFrameMaterialIndex] = useState(0);
@@ -377,6 +379,16 @@ export default function App() {
               )}
             </button>
 
+            <button
+              type="button"
+              onClick={() => setIsContactOpen(true)}
+              className="console-contact flex items-center justify-center p-2 rounded-lg shadow-sm transition-all shrink-0 cursor-pointer"
+              title="联系 Reyno LAB"
+              aria-label="联系方式"
+            >
+              <Mail className="w-4 h-4" />
+            </button>
+
           </div>
         </header>
       )}
@@ -542,6 +554,7 @@ export default function App() {
           ));
         }}
       />
+      <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
     </div>
   );
 }

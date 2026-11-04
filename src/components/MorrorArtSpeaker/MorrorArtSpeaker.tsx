@@ -204,7 +204,7 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
             />
 
             {/* === LAYER 2: 3D INNER CHAMBER WALLS (4-Sided Trapezoid Perspective Box) === */}
-            {(!lyrics.length || currentTime < lyrics[0].time - 0.5) && (
+            {!demoVideoUrl && (!lyrics.length || currentTime < lyrics[0].time - 0.5) && (
               <div className="a2-idle">
                 {coverArt && <img src={coverArt} alt="" />}
                 <strong>{trackTitle}</strong>
