@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DisplayMode, LightingTheme, Track, AudioAnalysis, TypographyStyle } from './types';
 import { PRESET_TRACKS } from './constants/presets';
 import { FRAME_MATERIALS } from './constants/frameMaterials';
+import { DEMO_VIDEO } from './constants/demoVideo';
 import { globalAudioEngine } from './utils/audioEngine';
 import { MorrorArtSpeaker } from './components/MorrorArtSpeaker/MorrorArtSpeaker';
 import { BottomControlDock } from './components/PlayerControls/BottomControlDock';
@@ -426,6 +427,7 @@ export default function App() {
           backgroundColor={PLAYER_BACKGROUNDS[backgroundIndex].color}
           backgroundGlow={PLAYER_BACKGROUNDS[backgroundIndex].glow}
           frameMaterial={FRAME_MATERIALS[frameMaterialIndex]}
+          demoVideoUrl={DEMO_VIDEO.url}
         />
       </main>
 

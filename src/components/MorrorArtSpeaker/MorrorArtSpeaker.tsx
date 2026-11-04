@@ -33,6 +33,7 @@ interface MorrorArtSpeakerProps {
   backgroundColor?: string;
   backgroundGlow?: string;
   frameMaterial?: FrameMaterial;
+  demoVideoUrl?: string;
 }
 
 export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
@@ -60,6 +61,7 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
   backgroundColor = '#090c0f',
   backgroundGlow = 'rgba(72, 83, 92, .16)',
   frameMaterial = FRAME_MATERIALS[0],
+  demoVideoUrl,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
@@ -180,6 +182,7 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
               bassIntensity={bassIntensity}
               parallaxOffset={{ x: parallax.x, y: parallax.y }}
               typographyStyle={typographyStyle}
+              demoVideoUrl={demoVideoUrl}
             />
 
             {/* === LAYER 2: 3D INNER CHAMBER WALLS (4-Sided Trapezoid Perspective Box) === */}

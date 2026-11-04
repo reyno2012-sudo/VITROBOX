@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DisplayMode, LightingTheme, Track, TypographyStyle } from '../../types';
 import { FrameMaterial } from '../../constants/frameMaterials';
+import { DEMO_VIDEO } from '../../constants/demoVideo';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import './HardwareControlDock.css';
 
@@ -108,8 +109,6 @@ export const BottomControlDock: React.FC<BottomControlDockProps> = ({
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [backgroundPulse, setBackgroundPulse] = useState(false);
-  // Use the supplied English credit for the demo track without altering source metadata.
-  const displayArtist = currentTrack.id === 'weeknd-hongkong' ? 'The Weeknd (feat. Faye Wong)' : currentTrack.artist;
   const [seekPreview, setSeekPreview] = useState<number | null>(null);
   const seekValue = useRef<number | null>(null);
   const trackDuration = Number.isFinite(duration) ? Math.max(0, duration) : 0;
@@ -139,9 +138,9 @@ export const BottomControlDock: React.FC<BottomControlDockProps> = ({
               <div className="gear-display-heading">VITROBOX - NOW PLAYING</div>
               <div className="gear-display-body">
                 <dl className="gear-display-metadata">
-                  <dt>TITLE</dt><dd title={currentTrack.title}>{currentTrack.title || 'UNKNOWN TITLE'}</dd>
-                  <dt>ARTIST</dt><dd title={displayArtist}>{displayArtist || 'UNKNOWN ARTIST'}</dd>
-                  <dt>ALBUM</dt><dd title={currentTrack.album}>{currentTrack.album || 'VITROBOX LIBRARY'}</dd>
+                  <dt>TITLE</dt><dd title={DEMO_VIDEO.title}>{DEMO_VIDEO.title}</dd>
+                  <dt>VOCALS</dt><dd title={DEMO_VIDEO.vocals}>{DEMO_VIDEO.vocals}</dd>
+                  <dt>PRODUCER</dt><dd title={DEMO_VIDEO.producer}>{DEMO_VIDEO.producer}</dd>
                 </dl>
                 <span className="gear-display-vb" aria-hidden="true">VB</span>
               </div>

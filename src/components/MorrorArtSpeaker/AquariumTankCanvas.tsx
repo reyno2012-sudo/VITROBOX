@@ -13,6 +13,7 @@ interface AquariumTankCanvasProps {
   bassIntensity: number;
   parallaxOffset: { x: number; y: number };
   typographyStyle?: TypographyStyle;
+  demoVideoUrl?: string;
 }
 
 interface Bubble {
@@ -56,6 +57,7 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
   bassIntensity,
   parallaxOffset,
   typographyStyle,
+  demoVideoUrl,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const bubblesRef = useRef<Bubble[]>([]);
@@ -661,9 +663,26 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
           transition: 'transform 0.12s ease-out',
         }}
       >
+        {/* The released demo film lives on the recessed backboard, beneath the chamber and hollow drivers. */}
+        {demoVideoUrl && (
+          <>
+            <video
+              className="a2-demo-video"
+              src={demoVideoUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-label="I'm Upping My P(doom) demonstration video"
+            />
+            <div className="a2-demo-video-grade" aria-hidden="true" />
+          </>
+        )}
+
         {/* Backboard Diffuser Screen Panel Base Gradient */}
         <div
-          className={`absolute inset-0 bg-gradient-to-br ${activeTheme.bgGradient} transition-colors duration-700`}
+          className={`absolute inset-0 bg-gradient-to-br ${activeTheme.bgGradient} transition-colors duration-700 ${demoVideoUrl ? 'opacity-[0.13] mix-blend-soft-light' : ''}`}
         >
           {/* Frosted LCD Backlight Diffusion Micro-Texture */}
           <div
@@ -706,11 +725,11 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
 
         {/* ---------------- 3. MORROR ART AVANT-GARDE KINETIC TYPOGRAPHY LAYER ---------------- */}
         {/* Positioned at z-index 15, in front of backboard (-80px) and behind speakers (+28px) */}
-        {!fullscreenLyrics && activeStyle === 'pop_sticker' && renderPopStickerStyle()}
-        {!fullscreenLyrics && activeStyle === 'swiss_editorial' && renderSwissEditorialStyle()}
-        {!fullscreenLyrics && activeStyle === 'floating_mist' && renderFloatingMistStyle()}
+        {!demoVideoUrl && !fullscreenLyrics && activeStyle === 'pop_sticker' && renderPopStickerStyle()}
+        {!demoVideoUrl && !fullscreenLyrics && activeStyle === 'swiss_editorial' && renderSwissEditorialStyle()}
+        {!demoVideoUrl && !fullscreenLyrics && activeStyle === 'floating_mist' && renderFloatingMistStyle()}
 
-        {fullscreenLyrics && <KineticLyrics lyrics={lyrics} currentTime={currentTime} typographyStyle={typographyStyle} theme={theme} />}
+        {!demoVideoUrl && fullscreenLyrics && <KineticLyrics lyrics={lyrics} currentTime={currentTime} typographyStyle={typographyStyle} theme={theme} />}
 
         {/* ---------------- 4. WATER MEDIUM TINT & VOLUME REFRACTION ---------------- */}
         <div
