@@ -78,6 +78,11 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
   const activeTheme = LIGHTING_THEMES[theme] || LIGHTING_THEMES.pure_white;
+  const introEndTime = lyrics.length ? Math.max(0, lyrics[0].time - 0.5) : Number.POSITIVE_INFINITY;
+  const introFadeStart = Number.isFinite(introEndTime) ? Math.max(0, introEndTime - 2.5) : Number.POSITIVE_INFINITY;
+  const introFadeProgress = Number.isFinite(introEndTime) && currentTime > introFadeStart
+    ? Math.min(1, Math.max(0, (currentTime - introFadeStart) / (introEndTime - introFadeStart)))
+    : 0;
 
   // Real-time bass vibration
   const bassIntensity = audioAnalysis.bass;
@@ -204,9 +209,16 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
             />
 
             {/* === LAYER 2: 3D INNER CHAMBER WALLS (4-Sided Trapezoid Perspective Box) === */}
-            {!demoVideoUrl && (!lyrics.length || currentTime < lyrics[0].time - 0.5) && (
-              <div className="a2-idle">
-                {coverArt && <img src={coverArt} alt="" />}
+            {!demoVideoUrl && currentTime < introEndTime && (
+              <div
+                className={`a2-idle ${coverArt ? 'a2-idle--with-cover' : ''}`}
+                style={{
+                  opacity: 1 - introFadeProgress,
+                  transform: `translateY(${-introFadeProgress * 1.2}cqw) scale(${1 - introFadeProgress * 0.025})`,
+                  filter: `blur(${introFadeProgress * 2}px)`,
+                }}
+              >
+                {coverArt && <img src={coverArt} alt={`${trackTitle} 唱片海报`} />}
                 <strong>{trackTitle}</strong>
                 <small>{trackArtist}</small>
               </div>

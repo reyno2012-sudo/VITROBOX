@@ -9,6 +9,7 @@ export const PRESET_TRACKS: Track[] = [
     album: 'Hurry Up Tomorrow',
     duration: 225,
     audioUrl: '/assets/aistudio/vk8xv-7j232_215df01d.mp3',
+    coverArt: '/hongkong-cover.jpg',
     lyrics: [
       {
         id: 'hk-1',
