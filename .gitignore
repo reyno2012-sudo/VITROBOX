@@ -10,3 +10,6 @@ coverage/
 .aistudio/
 dist/
 
+
+.vercel
+.env*
