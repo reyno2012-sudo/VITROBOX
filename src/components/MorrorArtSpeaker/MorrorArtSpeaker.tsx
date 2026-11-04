@@ -34,6 +34,12 @@ interface MorrorArtSpeakerProps {
   backgroundGlow?: string;
   frameMaterial?: FrameMaterial;
   demoVideoUrl?: string;
+  demoVideoRef?: React.RefObject<HTMLVideoElement | null>;
+  onVideoTimeUpdate?: React.ReactEventHandler<HTMLVideoElement>;
+  onVideoLoadedMetadata?: React.ReactEventHandler<HTMLVideoElement>;
+  onVideoPlay?: React.ReactEventHandler<HTMLVideoElement>;
+  onVideoPause?: React.ReactEventHandler<HTMLVideoElement>;
+  onVideoEnded?: React.ReactEventHandler<HTMLVideoElement>;
 }
 
 export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
@@ -62,6 +68,12 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
   backgroundGlow = 'rgba(72, 83, 92, .16)',
   frameMaterial = FRAME_MATERIALS[0],
   demoVideoUrl,
+  demoVideoRef,
+  onVideoTimeUpdate,
+  onVideoLoadedMetadata,
+  onVideoPlay,
+  onVideoPause,
+  onVideoEnded,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
@@ -183,6 +195,12 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
               parallaxOffset={{ x: parallax.x, y: parallax.y }}
               typographyStyle={typographyStyle}
               demoVideoUrl={demoVideoUrl}
+              demoVideoRef={demoVideoRef}
+              onVideoTimeUpdate={onVideoTimeUpdate}
+              onVideoLoadedMetadata={onVideoLoadedMetadata}
+              onVideoPlay={onVideoPlay}
+              onVideoPause={onVideoPause}
+              onVideoEnded={onVideoEnded}
             />
 
             {/* === LAYER 2: 3D INNER CHAMBER WALLS (4-Sided Trapezoid Perspective Box) === */}

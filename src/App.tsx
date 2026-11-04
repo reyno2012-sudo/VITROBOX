@@ -70,13 +70,16 @@ export default function App() {
   const activeDuration = isUsingSpotify ? spotify.playbackState.duration : duration;
 
   const animFrameRef = useRef<number | null>(null);
+  const demoVideoRef = useRef<HTMLVideoElement | null>(null);
+  const isDemoVideo = !spotify.isSyncActive && activeTrack.id === DEMO_VIDEO.id;
 
   // Pause local audio engine if Spotify becomes actively playing
   useEffect(() => {
-    if (isUsingSpotify && spotify.playbackState.isPlaying) {
+    if (spotify.isSyncActive) {
       globalAudioEngine.pause();
+      demoVideoRef.current?.pause();
     }
-  }, [isUsingSpotify, spotify.playbackState.isPlaying]);
+  }, [spotify.isSyncActive]);
 
   // Initialize AudioEngine callbacks and load initial track
   useEffect(() => {
@@ -163,6 +166,26 @@ export default function App() {
   };
 
   // Track switching
+  const playLocalTrack = (track: Track) => {
+    demoVideoRef.current?.pause();
+    if (track.videoUrl) {
+      globalAudioEngine.stop();
+      setCurrentTime(0);
+      setDuration(demoVideoRef.current && Number.isFinite(demoVideoRef.current.duration) ? demoVideoRef.current.duration : track.duration);
+      const video = demoVideoRef.current;
+      if (video) {
+        video.currentTime = 0;
+        video.volume = volume;
+        void video.play().catch(() => setIsPlaying(false));
+      }
+    } else {
+      globalAudioEngine.loadTrack(track, true);
+      setCurrentTime(0);
+      setDuration(track.duration);
+    }
+    setIsPlaying(true);
+  };
+
   const handleSelectTrack = (track: Track) => {
     // If selecting local/preset track, deactivate Spotify sync
     spotify.setIsSyncActive(false);
@@ -173,8 +196,7 @@ export default function App() {
       setTracks((prev) => [track, ...prev]);
       setCurrentTrackIndex(0);
     }
-    globalAudioEngine.loadTrack(track, true);
-    setIsPlaying(true);
+    playLocalTrack(track);
   };
 
   const handlePrevTrack = () => {
@@ -184,8 +206,7 @@ export default function App() {
     }
     const prevIdx = (currentTrackIndex - 1 + tracks.length) % tracks.length;
     setCurrentTrackIndex(prevIdx);
-    globalAudioEngine.loadTrack(tracks[prevIdx], true);
-    setIsPlaying(true);
+    playLocalTrack(tracks[prevIdx]);
   };
 
   const handleNextTrack = () => {
@@ -195,8 +216,7 @@ export default function App() {
     }
     const nextIdx = (currentTrackIndex + 1) % tracks.length;
     setCurrentTrackIndex(nextIdx);
-    globalAudioEngine.loadTrack(tracks[nextIdx], true);
-    setIsPlaying(true);
+    playLocalTrack(tracks[nextIdx]);
   };
 
   const handleTogglePlay = () => {
@@ -206,6 +226,13 @@ export default function App() {
       } else {
         spotify.handleRemotePlay();
       }
+      return;
+    }
+
+    if (isDemoVideo) {
+      const video = demoVideoRef.current;
+      if (isPlaying) video?.pause();
+      else void video?.play().catch(() => setIsPlaying(false));
       return;
     }
 
@@ -221,13 +248,15 @@ export default function App() {
       spotify.handleRemoteSeek(time);
       return;
     }
-    globalAudioEngine.seek(time);
+    if (isDemoVideo && demoVideoRef.current) demoVideoRef.current.currentTime = time;
+    else globalAudioEngine.seek(time);
     setCurrentTime(time);
   };
 
   const handleVolumeChange = (vol: number) => {
     setVolume(vol);
     globalAudioEngine.setVolume(vol);
+    if (demoVideoRef.current) demoVideoRef.current.volume = vol;
   };
 
   // Global Drag & Drop Support
@@ -427,7 +456,13 @@ export default function App() {
           backgroundColor={PLAYER_BACKGROUNDS[backgroundIndex].color}
           backgroundGlow={PLAYER_BACKGROUNDS[backgroundIndex].glow}
           frameMaterial={FRAME_MATERIALS[frameMaterialIndex]}
-          demoVideoUrl={DEMO_VIDEO.url}
+          demoVideoUrl={isDemoVideo ? DEMO_VIDEO.url : undefined}
+          demoVideoRef={demoVideoRef}
+          onVideoTimeUpdate={event => { if (isDemoVideo) setCurrentTime(event.currentTarget.currentTime); }}
+          onVideoLoadedMetadata={event => { if (isDemoVideo) setDuration(event.currentTarget.duration); }}
+          onVideoPlay={() => { if (isDemoVideo) setIsPlaying(true); }}
+          onVideoPause={() => { if (isDemoVideo) setIsPlaying(false); }}
+          onVideoEnded={() => { if (isDemoVideo) setIsPlaying(false); }}
         />
       </main>
 

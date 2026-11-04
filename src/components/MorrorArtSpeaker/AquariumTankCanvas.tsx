@@ -2,6 +2,7 @@ import { KineticLyrics } from './KineticLyrics';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { AudioAnalysis, DisplayMode, LightingTheme, LyricLine, TypographyStyle } from '../../types';
 import { LIGHTING_THEMES } from '../../constants/presets';
+import { DEMO_VIDEO } from '../../constants/demoVideo';
 
 interface AquariumTankCanvasProps {
   mode: DisplayMode;
@@ -14,6 +15,12 @@ interface AquariumTankCanvasProps {
   parallaxOffset: { x: number; y: number };
   typographyStyle?: TypographyStyle;
   demoVideoUrl?: string;
+  demoVideoRef?: React.RefObject<HTMLVideoElement | null>;
+  onVideoTimeUpdate?: React.ReactEventHandler<HTMLVideoElement>;
+  onVideoLoadedMetadata?: React.ReactEventHandler<HTMLVideoElement>;
+  onVideoPlay?: React.ReactEventHandler<HTMLVideoElement>;
+  onVideoPause?: React.ReactEventHandler<HTMLVideoElement>;
+  onVideoEnded?: React.ReactEventHandler<HTMLVideoElement>;
 }
 
 interface Bubble {
@@ -58,6 +65,12 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
   parallaxOffset,
   typographyStyle,
   demoVideoUrl,
+  demoVideoRef,
+  onVideoTimeUpdate,
+  onVideoLoadedMetadata,
+  onVideoPlay,
+  onVideoPause,
+  onVideoEnded,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const bubblesRef = useRef<Bubble[]>([]);
@@ -664,19 +677,22 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
         }}
       >
         {/* The released demo film lives on the recessed backboard, beneath the chamber and hollow drivers. */}
-        {demoVideoUrl && (
+        {(
           <>
             <video
-              className="a2-demo-video"
-              src={demoVideoUrl}
-              autoPlay
-              muted
-              loop
+              ref={demoVideoRef}
+              className={`a2-demo-video ${demoVideoUrl ? '' : 'hidden'}`}
+              src={DEMO_VIDEO.url}
               playsInline
               preload="metadata"
+              onTimeUpdate={onVideoTimeUpdate}
+              onLoadedMetadata={onVideoLoadedMetadata}
+              onPlay={onVideoPlay}
+              onPause={onVideoPause}
+              onEnded={onVideoEnded}
               aria-label="I'm Upping My P(doom) demonstration video"
             />
-            <div className="a2-demo-video-grade" aria-hidden="true" />
+            {demoVideoUrl && <div className="a2-demo-video-grade" aria-hidden="true" />}
           </>
         )}
 
