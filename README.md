@@ -88,7 +88,7 @@ npm start
 1. 打开 [Spotify 开发者中心 (Dashboard)](https://developer.spotify.com/dashboard) 登录账号。
 2. 点击 **Create App** 创建应用，App name 输入 `VITROBOX`。
 3. 勾选 **Web API**。
-4. 在 **Redirect URIs** 填入您的应用网址（如 `http://localhost:3000/` 或部署域名）。
+4. 在 **Redirect URIs** 填入 VITROBOX 弹窗自动生成的完整回调地址（例如 `http://localhost:3000/auth/callback` 或当前部署域名加 `/auth/callback`）。回调地址不需要在播放器内手动填写。
 5. 复制生成的 **Client ID**，在 VITROBOX 播放器右上角点击 Spotify 图标粘贴并点击 **【授权并开始同步歌词】** 即可完成直连！
 
 ---

@@ -73,28 +73,19 @@ export function SpotifyConnectModal({
 }: SpotifyConnectModalProps) {
   const [config, setConfig] = useState<{
     configured: boolean;
-    envClientId: string | null;
     redirectUri: string;
   }>({
     configured: false,
-    envClientId: null,
     redirectUri: 'https://ais-dev-d2ql7x3ykbs6f7j7w4lcjx-225925733543.us-east1.run.app/auth/callback',
   });
 
-  const [customClientId, setCustomClientId] = useState('');
-  const [customClientSecret, setCustomClientSecret] = useState('');
-  const [showCustomCreds, setShowCustomCreds] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [pkceClientId, setPkceClientId] = useState(() => {
-    try {
-      return localStorage.getItem('sp_client_id') || '6c55c15601be4c55a3e23f3da8a219e1';
-    } catch {
-      return '6c55c15601be4c55a3e23f3da8a219e1';
-    }
-  });
+  // Never prefill or publish an application owner's Client ID. Every visitor
+  // must explicitly provide the ID from their own Spotify Developer app.
+  const [pkceClientId, setPkceClientId] = useState('');
   const [pkceCopied, setPkceCopied] = useState(false);
   const currentAppUrl =
     typeof window !== 'undefined'
@@ -123,6 +114,24 @@ export function SpotifyConnectModal({
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'PKCE 直连失败');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePkceReauthorize = async () => {
+    const savedClientId = localStorage.getItem('sp_client_id')?.trim();
+    if (!savedClientId || !onConnectPkce) {
+      setErrorMessage('请先退出连接，然后重新填写您自己的 Spotify Client ID');
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    try {
+      await onConnectPkce(savedClientId);
+    } catch (err: any) {
+      setErrorMessage(err.message || '重新授权失败');
     } finally {
       setIsSubmitting(false);
     }
@@ -171,23 +180,6 @@ export function SpotifyConnectModal({
     navigator.clipboard.writeText(config.redirectUri);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleLoginSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    setErrorMessage(null);
-    setIsSubmitting(true);
-    try {
-      const credentials =
-        customClientId && customClientSecret
-          ? { clientId: customClientId.trim(), clientSecret: customClientSecret.trim() }
-          : undefined;
-      await onConnect(credentials);
-    } catch (err: any) {
-      setErrorMessage(err.message || '连接失败，请检查配置与弹窗权限');
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   // Immediate sync click with loading & feedback
@@ -401,8 +393,8 @@ export function SpotifyConnectModal({
                     )}
                   </button>
                   <button
-                    onClick={() => handleLoginSubmit()}
-                    disabled={isSyncing}
+                    onClick={handlePkceReauthorize}
+                    disabled={isSyncing || isSubmitting}
                     className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#242b37] hover:bg-[#313a4a] text-neutral-300 hover:text-white border border-[#3b4556] rounded-lg text-xs font-medium transition-colors cursor-pointer"
                   >
                     <Key className="w-3.5 h-3.5" />
@@ -787,7 +779,7 @@ export function SpotifyConnectModal({
                   Spotify 实时同步配置指南 · 免密钥极简直连
                 </span>
                 <p className="text-xs text-[#8e98a5] pt-1">
-                  无需配置 Client Secret · 仅需 1 个 Client ID 即可与手机/电脑端同步歌词
+                  使用您自己的 Spotify 开发者应用 · 无需填写 Client Secret
                 </p>
               </div>
 
@@ -822,7 +814,9 @@ export function SpotifyConnectModal({
                   <div className="flex items-start gap-2.5">
                     <span className="w-4 h-4 rounded-full bg-[#252b38] text-neutral-400 flex items-center justify-center text-[10px] shrink-0 mt-0.5">4</span>
                     <div className="flex-1 min-w-0">
-                      <div>勾选 <code className="text-amber-200">Web API</code>，在 <strong className="text-white">Redirect URIs</strong> 填入下面的完整回调地址：</div>
+                      <div>
+                        勾选 <code className="text-amber-200">Web API</code>，将下方<strong className="text-white">自动生成的回调地址</strong>复制到 Spotify 后台的 <strong className="text-white">Redirect URIs</strong>。无需在 VITROBOX 内手动填写。
+                      </div>
                       <div className="flex items-center gap-2 mt-1.5 p-2 bg-black/60 border border-[#2b3342] rounded-lg">
                         <code className="flex-1 font-mono text-[10px] text-amber-300 select-all truncate">
                           {currentAppUrl}
@@ -848,15 +842,21 @@ export function SpotifyConnectModal({
               <form onSubmit={handlePkceSubmit} className="space-y-3">
                 <div className="space-y-1">
                   <label className="block text-xs font-medium text-neutral-300">
-                    Spotify Client ID
+                    您的 Spotify Client ID
                   </label>
                   <input
                     type="text"
                     value={pkceClientId}
                     onChange={(e) => setPkceClientId(e.target.value)}
-                    placeholder="请粘贴 Spotify Client ID..."
+                    placeholder="粘贴您自己的 Client ID（此处不会提供默认 ID）"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
                     className="w-full px-3.5 py-2.5 bg-[#0f1116] border border-[#2e3748] rounded-xl text-xs text-white placeholder-neutral-600 focus:outline-none focus:border-[#fecc11] font-mono shadow-inner"
                   />
+                  <p className="text-[10px] leading-relaxed text-[#717b88] px-0.5">
+                    Client ID 由 Spotify 开发者中心生成，仅保存在您当前设备的浏览器中；VITROBOX 不内置或共享任何测试 ID。
+                  </p>
                 </div>
 
                 {errorMessage && (
@@ -902,33 +902,6 @@ export function SpotifyConnectModal({
                 )}
               </form>
 
-              {/* Secondary Option: Traditional OAuth with Secret */}
-              <div className="pt-2 border-t border-[#1f242e]">
-                <button
-                  type="button"
-                  onClick={() => setShowCustomCreds(!showCustomCreds)}
-                  className="flex items-center gap-1.5 text-[11px] text-[#717b88] hover:text-white transition-colors cursor-pointer"
-                >
-                  <Key className="w-3.5 h-3.5" />
-                  <span>{showCustomCreds ? '收起弹窗授权方式' : '备用：使用弹窗授权模式 (Client Secret)'}</span>
-                </button>
-
-                {showCustomCreds && (
-                  <div className="mt-2.5 p-3.5 bg-[#141820] border border-[#232936] rounded-xl space-y-2.5 text-xs">
-                    <p className="text-[11px] text-[#8e98a5]">
-                      弹窗授权模式需要填写 Client Secret，并在后台填写回调地址：<code className="text-[#38bdf8]">{config.redirectUri}</code>
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => handleLoginSubmit()}
-                      disabled={isSubmitting}
-                      className="w-full py-2 bg-[#252b36] hover:bg-[#323a49] text-xs font-medium text-white rounded-lg transition-colors cursor-pointer"
-                    >
-                      打开传统授权弹窗
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
           )}
         </div>

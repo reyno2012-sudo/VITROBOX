@@ -83,7 +83,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
       const code = urlParams.get('code');
       if (code) {
         const verifier = localStorage.getItem('sp_code_verifier');
-        const clientId = localStorage.getItem('sp_client_id') || '6c55c15601be4c55a3e23f3da8a219e1';
+        const clientId = localStorage.getItem('sp_client_id');
         if (verifier && clientId) {
           setIsLoadingAuth(true);
           const redirectUri = `${window.location.origin}/auth/callback`;
@@ -125,8 +125,13 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
       } else if (event.data?.type === 'SPOTIFY_PKCE_CODE' && event.data.code) {
         const code = event.data.code;
         const verifier = localStorage.getItem('sp_code_verifier') || '';
-        const clientId = localStorage.getItem('sp_client_id') || '6c55c15601be4c55a3e23f3da8a219e1';
+        const clientId = localStorage.getItem('sp_client_id');
         const redirectUri = `${window.location.origin}/auth/callback`;
+
+        if (!clientId) {
+          setStatusMessage('授权信息已失效，请重新填写您自己的 Spotify Client ID');
+          return;
+        }
 
         setIsLoadingAuth(true);
         setStatusMessage('正在验证 Spotify 授权令牌...');
@@ -176,11 +181,10 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
   const connectSpotifyPkce = async (customClientId?: string) => {
     setIsLoadingAuth(true);
     try {
-      const clientId = (
-        customClientId ||
-        localStorage.getItem('sp_client_id') ||
-        '6c55c15601be4c55a3e23f3da8a219e1'
-      ).trim();
+      const clientId = (customClientId || '').trim();
+      if (!clientId) {
+        throw new Error('请输入您自己的 Spotify Client ID');
+      }
       localStorage.setItem('sp_client_id', clientId);
 
       const { verifier, challenge } = await generatePkcePair();

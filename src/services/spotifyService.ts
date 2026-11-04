@@ -82,7 +82,6 @@ function getHeaders(token?: string | null): HeadersInit {
 
 export async function getSpotifyConfig(): Promise<{
   configured: boolean;
-  envClientId: string | null;
   redirectUri: string;
 }> {
   const res = await fetch('/api/spotify/config');

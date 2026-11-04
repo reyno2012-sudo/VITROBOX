@@ -179,7 +179,6 @@ app.get('/api/spotify/config', (req: Request, res: Response) => {
 
   res.json({
     configured: !!(envClientId && envClientSecret),
-    envClientId: envClientId ? `${envClientId.substring(0, 4)}...${envClientId.slice(-4)}` : null,
     redirectUri,
   });
 });
