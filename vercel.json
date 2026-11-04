@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/auth/callback",
+      "destination": "/api/index?route=/auth/callback"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index?route=/api/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
+  ]
+}

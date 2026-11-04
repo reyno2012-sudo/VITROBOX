@@ -377,18 +377,17 @@ const handleAuthCallback = async (req: Request, res: Response) => {
     return;
   }
 
-  const stateStr = String(state);
-  const pending = pendingStates.get(stateStr);
-  let clientId = pending?.clientId || process.env.SPOTIFY_CLIENT_ID || '';
-  let clientSecret = pending?.clientSecret || process.env.SPOTIFY_CLIENT_SECRET || '';
-  const redirectUri = pending?.redirectUri || getRedirectUri(req);
+  const stateStr = typeof state === 'string' ? state : '';
+  const pending = stateStr ? pendingStates.get(stateStr) : undefined;
 
   if (pending) {
     pendingStates.delete(stateStr);
   }
 
-  if (!clientId || !clientSecret) {
-    // If no client secret is found, this is a PKCE flow redirect! Hand off the code to opener or redirect to root
+  if (!pending) {
+    // PKCE requests are initiated entirely in the browser and intentionally
+    // have no server-side pending state. Never fall back to an app owner's
+    // environment credentials for these user-owned Client IDs.
     res.send(`<!DOCTYPE html>
 <html>
   <head>
@@ -409,6 +408,8 @@ const handleAuthCallback = async (req: Request, res: Response) => {
 </html>`);
     return;
   }
+
+  const { clientId, clientSecret, redirectUri } = pending;
 
   try {
     const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
@@ -1241,7 +1242,13 @@ async function startServer() {
   });
 }
 
-startServer().catch((err) => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
-});
+// Vercel imports this Express instance as a serverless function. Local
+// development still starts the combined Vite + Express server as before.
+if (!process.env.VERCEL) {
+  startServer().catch((err) => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  });
+}
+
+export default app;
