@@ -37,12 +37,16 @@ export function ContactModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
         <div className="contact-payments">
           <div className="contact-payment-card">
             <span className="contact-payment-name"><i className="contact-payment-dot wechat" />微信支付</span>
-            <div className="contact-qr contact-qr-wechat" role="img" aria-label="微信支付二维码" />
+            <div className="contact-qr-frame">
+              <img className="contact-qr-image" src="/contact-wechat.png" alt="微信支付二维码" />
+            </div>
             <small>使用微信扫一扫</small>
           </div>
           <div className="contact-payment-card">
             <span className="contact-payment-name"><i className="contact-payment-dot alipay" />支付宝</span>
-            <div className="contact-qr contact-qr-alipay" role="img" aria-label="支付宝二维码" />
+            <div className="contact-qr-frame">
+              <img className="contact-qr-image" src="/contact-alipay.png" alt="支付宝二维码" />
+            </div>
             <small>使用支付宝扫一扫</small>
           </div>
         </div>

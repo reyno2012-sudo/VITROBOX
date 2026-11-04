@@ -26,9 +26,8 @@
 .contact-payment-dot { width: 8px; height: 8px; border-radius: 50%; }
 .contact-payment-dot.wechat { background: #08bf65; box-shadow: 0 0 0 3px #08bf6522; }
 .contact-payment-dot.alipay { background: #2078ed; box-shadow: 0 0 0 3px #2078ed22; }
-.contact-qr { width: min(100%,190px); aspect-ratio: 1; margin: 12px 0 8px; border: 8px solid white; border-radius: 5px; box-shadow: 0 0 0 1px #e5e7e2; background-repeat: no-repeat; }
-.contact-qr-wechat { background-image: url('/contact-wechat.png'); background-size: 235% auto; background-position: 50% 32%; }
-.contact-qr-alipay { background-image: url('/contact-alipay.png'); background-size: 215% auto; background-position: 50% 70%; }
+.contact-qr-frame { display: grid; place-items: center; width: min(100%,210px); aspect-ratio: 1; margin: 12px 0 8px; padding: 8px; overflow: hidden; border: 1px solid #e0e4dc; border-radius: 6px; background: #fff; box-shadow: 0 2px 8px #24302912; }
+.contact-qr-image { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
 .contact-payment-card > small { font-size: 11px; color: #7d8982; }
 .contact-footer { border-top: 1px solid #cbd0c8; margin-top: 26px; padding-top: 15px; font-size: 9px; }
-@media(max-width:560px) { .contact-overlay { padding: 12px; } .contact-payments { gap: 8px; } .contact-payment-card { padding: 9px; } .contact-qr { border-width: 4px; } .contact-footer { flex-direction: column; } }
+@media(max-width:560px) { .contact-overlay { padding: 12px; } .contact-payments { gap: 8px; } .contact-payment-card { padding: 9px; } .contact-qr-frame { padding: 5px; } .contact-footer { flex-direction: column; } }
