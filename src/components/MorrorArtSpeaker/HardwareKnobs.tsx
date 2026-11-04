@@ -61,9 +61,9 @@ export const HardwareKnobs: React.FC<HardwareKnobsProps> = ({
   // Cycle typography styles
   const styles: TypographyStyle[] = ['pop_sticker', 'swiss_editorial', 'floating_mist'];
   const styleLabels: Record<TypographyStyle, string> = {
-    pop_sticker: '波普立体贴纸 (Pop Sticker)',
-    swiss_editorial: '瑞士先锋杂志 (Editorial)',
-    floating_mist: '水中呼吸微光 (Floating Mist)',
+    pop_sticker: '提前淡入 (Fade)',
+    swiss_editorial: '简洁淡入 (Clean)',
+    floating_mist: '描边淡入 (Outline)',
   };
 
   const handleNextStyle = () => {
@@ -90,10 +90,10 @@ export const HardwareKnobs: React.FC<HardwareKnobsProps> = ({
       {/* Left: Brand Wordmark */}
       <div className="flex items-center gap-3">
         <span className="text-xs font-mono font-bold tracking-[0.22em] text-[#e2e8f0] uppercase">
-          REYNO TANK
+          VITROBOX
         </span>
         <span className="text-[10px] font-mono text-[#8a929d] tracking-wider">
-          SONICGLASS A1 · Audio Player
+          Reyno LAB
         </span>
       </div>
 
@@ -149,10 +149,10 @@ export const HardwareKnobs: React.FC<HardwareKnobsProps> = ({
             <span className="text-[10px] font-mono text-[#8e97a3] uppercase">STYLE</span>
             <span className="text-[11px] font-sans font-medium text-neutral-200">
               {typographyStyle === 'pop_sticker'
-                ? '波普'
+                ? '淡入'
                 : typographyStyle === 'swiss_editorial'
-                ? '瑞士'
-                : '微光'}
+                ? '简洁'
+                : '描边'}
             </span>
           </button>
         )}

@@ -1,4 +1,4 @@
-import { LyricLine } from '../types';
+import type { LyricLine } from '../types';
 
 export function parseLrc(
   lrcText: string,

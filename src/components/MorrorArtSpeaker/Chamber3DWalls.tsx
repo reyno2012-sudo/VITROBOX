@@ -43,43 +43,46 @@ export const Chamber3DWalls: React.FC<Chamber3DWallsProps> = ({
   const y1 = H - baseDepthY + shiftY;
 
   return (
-    <div className="absolute inset-0 pointer-events-none select-none z-15 overflow-hidden">
+    <div className="material-chamber absolute inset-0 pointer-events-none select-none z-15 overflow-hidden">
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
         className="w-full h-full block"
       >
         <defs>
+          <pattern id="frame-brush-lines" width="4" height="4" patternUnits="userSpaceOnUse">
+            <path d="M0 0H4 M0 2H4" stroke="var(--frame-edge)" strokeWidth=".5" />
+          </pattern>
           {/* Top Ceiling Gradient: downward metallic falloff */}
           <linearGradient id="chamber-ceiling-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a1c20" />
-            <stop offset="25%" stopColor="#252a32" />
-            <stop offset="70%" stopColor="#1e2228" />
-            <stop offset="100%" stopColor="#131518" />
+            <stop offset="0%" stopColor="var(--frame-shade)" />
+            <stop offset="25%" stopColor="var(--frame-light)" />
+            <stop offset="70%" stopColor="var(--frame-base)" />
+            <stop offset="100%" stopColor="var(--frame-shade)" />
           </linearGradient>
 
           {/* Bottom Floor Gradient: upward metallic shelf falloff */}
           <linearGradient id="chamber-floor-grad" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stopColor="#141619" />
-            <stop offset="35%" stopColor="#22262d" />
-            <stop offset="75%" stopColor="#1a1d22" />
-            <stop offset="100%" stopColor="#101214" />
+            <stop offset="0%" stopColor="var(--frame-base)" />
+            <stop offset="35%" stopColor="var(--frame-light)" />
+            <stop offset="75%" stopColor="var(--frame-base)" />
+            <stop offset="100%" stopColor="var(--frame-shade)" />
           </linearGradient>
 
           {/* Left Wall Gradient: horizontal inward falloff */}
           <linearGradient id="chamber-left-grad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#17191d" />
-            <stop offset="40%" stopColor="#23282f" />
-            <stop offset="80%" stopColor="#1c2026" />
-            <stop offset="100%" stopColor="#121417" />
+            <stop offset="0%" stopColor="var(--frame-base)" />
+            <stop offset="40%" stopColor="var(--frame-light)" />
+            <stop offset="80%" stopColor="var(--frame-base)" />
+            <stop offset="100%" stopColor="var(--frame-shade)" />
           </linearGradient>
 
           {/* Right Wall Gradient: horizontal inward falloff */}
           <linearGradient id="chamber-right-grad" x1="1" y1="0" x2="0" y2="0">
-            <stop offset="0%" stopColor="#16181b" />
-            <stop offset="40%" stopColor="#22262d" />
-            <stop offset="80%" stopColor="#1b1e24" />
-            <stop offset="100%" stopColor="#111316" />
+            <stop offset="0%" stopColor="var(--frame-shade)" />
+            <stop offset="40%" stopColor="var(--frame-base)" />
+            <stop offset="80%" stopColor="var(--frame-light)" />
+            <stop offset="100%" stopColor="var(--frame-shade)" />
           </linearGradient>
 
           {/* Subtle Ambient Reflected Light from Backboard theme */}
@@ -283,6 +286,14 @@ export const Chamber3DWalls: React.FC<Chamber3DWallsProps> = ({
           stroke="#4f5968"
           strokeWidth="0.8"
           opacity="0.4"
+        />
+
+        {/* Restrict metal texture to the ring, keeping the display aperture clear. */}
+        <path
+          d={`M0 0H${W}V${H}H0Z M${x0} ${y0}H${x1}V${y1}H${x0}Z`}
+          fillRule="evenodd"
+          fill="url(#frame-brush-lines)"
+          style={{ opacity: 'var(--frame-brush)' }}
         />
 
         {/* 6. INNER APERTURE FRAME BEVEL (内背板金属固定倒角框架边) */}

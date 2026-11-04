@@ -628,7 +628,7 @@ export const LIGHTING_THEMES: Record<
     id: 'pure_white',
     name: '原白 (Studio White)',
     color: '#e2edf1',
-    bgGradient: 'from-[#dbe8ee] via-[#d0e0e7] to-[#bcd3dc]',
+    bgGradient: 'from-[#e7e8dc] via-[#e1e2d4] to-[#ced9d4]',
     ambientGlow: 'rgba(215, 235, 245, 0.45)',
     causticColor: 'rgba(255, 255, 255, 0.75)',
     waterTint: 'rgba(195, 222, 232, 0.22)',
@@ -695,5 +695,13 @@ export const LIGHTING_THEMES: Record<
     textColor: '#f8fafc',
     highlightBg: '#f8fafc',
     highlightText: '#090b0e',
+  },
+  rose: {
+    id: 'rose', name: 'Rose', color: '#edcbd1',
+    bgGradient: 'from-[#f4e7e8] via-[#ecd4da] to-[#d9bbc5]',
+    ambientGlow: 'rgba(237, 190, 207, 0.45)',
+    causticColor: 'rgba(255, 237, 243, 0.75)',
+    waterTint: 'rgba(231, 188, 204, 0.22)',
+    textColor: '#38272e', highlightBg: '#38272e', highlightText: '#fff3f6',
   },
 };

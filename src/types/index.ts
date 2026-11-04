@@ -2,7 +2,7 @@ export type DisplayMode = 'aquarium' | 'graphic_poster' | 'fluid_spectrum' | 'mi
 
 export type TypographyStyle = 'pop_sticker' | 'swiss_editorial' | 'floating_mist';
 
-export type LightingTheme = 'pure_white' | 'warm_amber' | 'cyber_blue' | 'twilight_orchid' | 'emerald_aurora' | 'midnight';
+export type LightingTheme = 'pure_white' | 'warm_amber' | 'cyber_blue' | 'twilight_orchid' | 'emerald_aurora' | 'midnight' | 'rose';
 
 export interface LyricLine {
   id: string;

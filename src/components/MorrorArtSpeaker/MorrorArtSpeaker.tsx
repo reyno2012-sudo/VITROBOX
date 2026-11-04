@@ -2,11 +2,11 @@ import React, { useState, useRef } from 'react';
 import { AudioAnalysis, DisplayMode, LightingTheme, LyricLine, TypographyStyle } from '../../types';
 import { AquariumTankCanvas } from './AquariumTankCanvas';
 import { SpeakerDrivers } from './SpeakerDrivers';
-import { HardwareKnobs } from './HardwareKnobs';
 import { OuterGlassPane } from './OuterGlassPane';
 import { Chamber3DWalls } from './Chamber3DWalls';
 import { LIGHTING_THEMES } from '../../constants/presets';
 import { Minimize2 } from 'lucide-react';
+import { FRAME_MATERIALS, FrameMaterial, frameMaterialStyle } from '../../constants/frameMaterials';
 
 interface MorrorArtSpeakerProps {
   mode: DisplayMode;
@@ -21,12 +21,18 @@ interface MorrorArtSpeakerProps {
   onTogglePlay: () => void;
   currentTime: number;
   lyrics: LyricLine[];
+  trackTitle: string;
+  trackArtist: string;
+  coverArt?: string;
   audioAnalysis: AudioAnalysis;
   viewEnvironment: 'desktop' | 'fullscreen';
   typographyStyle?: TypographyStyle;
   onTypographyStyleChange?: (style: TypographyStyle) => void;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
+  backgroundColor?: string;
+  backgroundGlow?: string;
+  frameMaterial?: FrameMaterial;
 }
 
 export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
@@ -42,12 +48,18 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
   onTogglePlay,
   currentTime,
   lyrics,
+  trackTitle,
+  trackArtist,
+  coverArt,
   audioAnalysis,
   viewEnvironment,
   typographyStyle,
   onTypographyStyleChange,
   isFullscreen = false,
   onToggleFullscreen,
+  backgroundColor = '#090c0f',
+  backgroundGlow = 'rgba(72, 83, 92, .16)',
+  frameMaterial = FRAME_MATERIALS[0],
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
@@ -64,10 +76,10 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
     const ny = (e.clientY - rect.top) / rect.height - 0.5;
 
     setParallax({
-      x: nx * (isFullscreen ? 18 : 26),
-      y: ny * (isFullscreen ? 12 : 20),
-      rotX: -ny * (isFullscreen ? 5.5 : 8.5),
-      rotY: nx * (isFullscreen ? 7.5 : 11.5),
+      x: nx * 4,
+      y: ny * 3,
+      rotX: -ny * 1.2,
+      rotY: nx * 1.6,
     });
   };
 
@@ -79,12 +91,16 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
     <div
       className={`relative w-full flex items-center justify-center select-none transition-all duration-300 ${
         isFullscreen
-          ? 'fixed inset-0 w-screen h-screen z-50 bg-[#07080a] p-0 m-0'
+          ? 'fixed inset-0 w-screen h-screen z-50 p-0 m-0'
           : viewEnvironment === 'desktop'
-          ? 'py-2 md:py-6 max-h-[calc(100vh-140px)]'
+          ? 'py-2 md:py-6 max-h-[calc(100vh-140px)] -translate-y-[8vh]'
           : 'h-full p-2'
       }`}
-      style={{ perspective: isFullscreen ? '2200px' : '1700px' }}
+      style={{
+        perspective: isFullscreen ? '2200px' : '1700px',
+        backgroundColor,
+        backgroundImage: `radial-gradient(circle at 50% 18%, ${backgroundGlow}, transparent 46%)`,
+      }}
     >
       {/* Quick floating exit button when in true Fullscreen mode */}
       {isFullscreen && onToggleFullscreen && (
@@ -104,55 +120,31 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
         onMouseLeave={handleMouseLeave}
         className={`group relative transition-all duration-300 ease-out flex flex-col items-center ${
           isFullscreen
-            ? 'w-full h-full max-w-none max-h-none rounded-none aspect-[16/9]'
+            ? 'w-screen h-screen max-w-none aspect-auto'
             : viewEnvironment === 'desktop'
-            ? 'w-[95%] max-w-[1100px] aspect-[16/9] max-h-[74vh]'
-            : 'w-full h-[88vh] max-w-[1240px] aspect-[16/9]'
+            ? 'w-[min(95%,112vh)] max-w-[1100px] aspect-[515/316]'
+            : 'w-[min(96vw,137vh)] max-w-[1240px] aspect-[515/316]'
         }`}
         style={{
           transform: `rotateX(${parallax.rotX}deg) rotateY(${parallax.rotY}deg) scale(${
-            1 + bassIntensity * 0.008
+            1
           })`,
           transformStyle: 'preserve-3d',
         }}
       >
-        {/* Floating Minimalist Hardware Controls: Fades in smoothly on Hover, keeping the black frame pure */}
-        <div
-          className={`absolute z-40 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto ${
-            isFullscreen
-              ? 'top-4 inset-x-8 opacity-0 group-hover:opacity-100'
-              : '-top-12 inset-x-0 opacity-0 group-hover:opacity-100 group-hover:-top-13'
-          }`}
-        >
-          <HardwareKnobs
-            volume={volume}
-            onVolumeChange={onVolumeChange}
-            mode={mode}
-            onModeChange={onModeChange}
-            theme={theme}
-            onThemeChange={onThemeChange}
-            bassMultiplier={bassMultiplier}
-            onBassMultiplierChange={onBassMultiplierChange}
-            isPlaying={isPlaying}
-            onTogglePlay={onTogglePlay}
-            typographyStyle={typographyStyle}
-            onTypographyStyleChange={onTypographyStyleChange}
-            isFullscreen={isFullscreen}
-            onToggleFullscreen={onToggleFullscreen}
-          />
-        </div>
-
         {/* Outer Matte Black Metal Cabinet Frame (#141416 Gallery Picture Frame) */}
         <div
-          className={`relative w-full h-full bg-[#141416] border border-[#262a33] shadow-[0_28px_65px_rgba(0,0,0,0.92),0_10px_25px_rgba(0,0,0,0.7)] ${
-            isFullscreen ? 'rounded-none p-3 sm:p-5' : 'rounded-xl p-3 sm:p-4.5 md:p-5'
+          data-frame-material={frameMaterial.id}
+          className={`speaker-material-frame relative w-full h-full border shadow-[0_28px_65px_rgba(0,0,0,0.92),0_10px_25px_rgba(0,0,0,0.7)] ${
+            'rounded-[1.5%] p-[3%]'
           }`}
           style={{
+            ...frameMaterialStyle(frameMaterial),
             transformStyle: 'preserve-3d',
           }}
         >
           {/* Subtle top edge metallic bevel hairline */}
-          <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#454c58]/60 to-transparent pointer-events-none" />
+          <div className="frame-edge-highlight absolute inset-x-0 top-0 h-[1.5px] pointer-events-none" />
 
           {/* Physical Side Rotary Control Knob (Preserved on the right edge as requested) */}
           {!isFullscreen && (
@@ -183,6 +175,7 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
               theme={theme}
               currentTime={currentTime}
               lyrics={lyrics}
+              fullscreenLyrics
               audioAnalysis={audioAnalysis}
               bassIntensity={bassIntensity}
               parallaxOffset={{ x: parallax.x, y: parallax.y }}
@@ -190,6 +183,13 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
             />
 
             {/* === LAYER 2: 3D INNER CHAMBER WALLS (4-Sided Trapezoid Perspective Box) === */}
+            {(!lyrics.length || currentTime < lyrics[0].time - 0.5) && (
+              <div className="a2-idle">
+                {coverArt && <img src={coverArt} alt="" />}
+                <strong>{trackTitle}</strong>
+                <small>{trackArtist}</small>
+              </div>
+            )}
             <Chamber3DWalls
               theme={theme}
               parallax={{ x: parallax.x, y: parallax.y }}
@@ -206,6 +206,7 @@ export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
             >
               <SpeakerDrivers
                 bassIntensity={bassIntensity}
+                midIntensity={audioAnalysis.mid}
                 excursionMultiplier={bassMultiplier}
               />
             </div>

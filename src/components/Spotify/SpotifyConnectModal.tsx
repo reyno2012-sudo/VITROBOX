@@ -98,7 +98,7 @@ export function SpotifyConnectModal({
   const [pkceCopied, setPkceCopied] = useState(false);
   const currentAppUrl =
     typeof window !== 'undefined'
-      ? `${window.location.origin}${window.location.pathname}`
+      ? `${window.location.origin}/auth/callback`
       : config.redirectUri;
 
   const handleCopyCurrentUrl = () => {
@@ -822,7 +822,7 @@ export function SpotifyConnectModal({
                   <div className="flex items-start gap-2.5">
                     <span className="w-4 h-4 rounded-full bg-[#252b38] text-neutral-400 flex items-center justify-center text-[10px] shrink-0 mt-0.5">4</span>
                     <div className="flex-1 min-w-0">
-                      <div>勾选 <code className="text-amber-200">Web API</code>，在 <strong className="text-white">Redirect URIs</strong> 填入当前网址：</div>
+                      <div>勾选 <code className="text-amber-200">Web API</code>，在 <strong className="text-white">Redirect URIs</strong> 填入下面的完整回调地址：</div>
                       <div className="flex items-center gap-2 mt-1.5 p-2 bg-black/60 border border-[#2b3342] rounded-lg">
                         <code className="flex-1 font-mono text-[10px] text-amber-300 select-all truncate">
                           {currentAppUrl}

@@ -86,7 +86,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
         const clientId = localStorage.getItem('sp_client_id') || '6c55c15601be4c55a3e23f3da8a219e1';
         if (verifier && clientId) {
           setIsLoadingAuth(true);
-          const redirectUri = window.location.origin + window.location.pathname;
+          const redirectUri = `${window.location.origin}/auth/callback`;
           exchangePkceToken(clientId, code, verifier, redirectUri)
             .then((data) => {
               setIsAuthenticated(true);
@@ -126,7 +126,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
         const code = event.data.code;
         const verifier = localStorage.getItem('sp_code_verifier') || '';
         const clientId = localStorage.getItem('sp_client_id') || '6c55c15601be4c55a3e23f3da8a219e1';
-        const redirectUri = window.location.origin + window.location.pathname;
+        const redirectUri = `${window.location.origin}/auth/callback`;
 
         setIsLoadingAuth(true);
         setStatusMessage('正在验证 Spotify 授权令牌...');
@@ -186,7 +186,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
       const { verifier, challenge } = await generatePkcePair();
       localStorage.setItem('sp_code_verifier', verifier);
 
-      const redirectUri = window.location.origin + window.location.pathname;
+      const redirectUri = `${window.location.origin}/auth/callback`;
       const scopes = [
         'user-read-playback-state',
         'user-modify-playback-state',
@@ -365,51 +365,6 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
       if (track.id !== lastTrackIdRef.current) {
         lastTrackIdRef.current = track.id;
 
-        let lyrics: LyricLine[] = [];
-        try {
-          const lyricsRes = await getSpotifyLyrics(track.title, track.artist, durationSec);
-          if (lyricsRes.syncedLyrics) {
-            lyrics = parseLrc(lyricsRes.syncedLyrics, lyricsRes.transLyrics).lines;
-          } else if (lyricsRes.plainLyrics) {
-            const lines = lyricsRes.plainLyrics.split('\n').filter((l) => l.trim().length > 0);
-            const step = Math.max(3, durationSec / (lines.length + 1));
-            lyrics = lines.map((text, idx) => ({
-              id: `plain-${idx}`,
-              time: idx * step,
-              text: text.trim(),
-              layoutStyle: idx % 2 === 0 ? 'top_right' : 'bottom_left',
-            }));
-          }
-        } catch (e) {
-          console.warn('Lyrics fetch failed:', e);
-        }
-
-        if (lyrics.length === 0) {
-          lyrics = [
-            {
-              id: 'sp-1',
-              time: 0,
-              text: track.title.toUpperCase(),
-              highlightWords: [track.title.split(' ')[0] || 'TRACK'],
-              layoutStyle: 'bottom_left',
-            },
-            {
-              id: 'sp-2',
-              time: 4,
-              text: `${track.artist} · ${track.album || 'SPOTIFY DIRECT'}`,
-              highlightWords: [track.artist],
-              layoutStyle: 'top_right',
-            },
-            {
-              id: 'sp-3',
-              time: 10,
-              text: 'SPOTIFY LIVE SYNC · VITROBOX',
-              highlightWords: ['SPOTIFY', 'VITROBOX'],
-              layoutStyle: 'bottom_left',
-            },
-          ];
-        }
-
         const newTrack: Track = {
           id: `spotify-${track.id}`,
           title: track.title,
@@ -417,8 +372,24 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
           album: track.album,
           duration: durationSec,
           coverArt: track.albumArt,
-          lyrics,
+          lyrics: [],
         };
+        setCurrentSpotifyTrack({ ...newTrack });
+
+        try {
+          const result = await getSpotifyLyrics(track.title, track.artist, durationSec);
+          if (result.syncedLyrics) {
+            newTrack.lyrics = parseLrc(result.syncedLyrics, result.transLyrics).lines;
+          } else if (result.plainLyrics?.trim()) {
+            newTrack.lyrics = [{ id: 'plain', time: 0, text: result.plainLyrics.trim() }];
+          }
+        } catch (error) {
+          console.warn('Lyrics fetch failed:', error);
+        }
+
+        if (lastTrackIdRef.current !== track.id) {
+          return { success: false, track: null, message: 'Spotify 曲目已切换' };
+        }
 
         setCurrentSpotifyTrack(newTrack);
         if (onTrackChange) {
@@ -609,6 +580,10 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
     setPlaybackState((prev) => ({ ...prev, currentTime: seconds }));
   };
 
+  const replaceCurrentSpotifyLyrics = useCallback((lyrics: LyricLine[]) => {
+    setCurrentSpotifyTrack((track) => track ? { ...track, lyrics } : track);
+  }, []);
+
   return {
     isAuthenticated,
     user,
@@ -629,6 +604,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
     handleRemoteNext,
     handleRemotePrev,
     handleRemoteSeek,
+    replaceCurrentSpotifyLyrics,
     pollPlayback,
     syncTrackDirectly,
     lastAuthUrl,

@@ -1,14 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DisplayMode, LightingTheme, Track, AudioAnalysis, TypographyStyle } from './types';
 import { PRESET_TRACKS } from './constants/presets';
+import { FRAME_MATERIALS } from './constants/frameMaterials';
 import { globalAudioEngine } from './utils/audioEngine';
 import { MorrorArtSpeaker } from './components/MorrorArtSpeaker/MorrorArtSpeaker';
 import { BottomControlDock } from './components/PlayerControls/BottomControlDock';
 import { UploadModal } from './components/UploadModal';
 import { SpotifyConnectModal } from './components/Spotify/SpotifyConnectModal';
+import { LyricsCorrectionModal } from './components/LyricsCorrectionModal';
 import { useSpotifySync } from './hooks/useSpotifySync';
 import { parseLrc } from './utils/lrcParser';
-import { Sparkles, Music2, Maximize2, Minimize2 } from 'lucide-react';
+import { Sparkles, Music2, Maximize2, Minimize2, FilePenLine } from 'lucide-react';
+
+const PLAYER_BACKGROUNDS = [
+  { name: '石墨灰', color: '#090c0f', glow: 'rgba(72, 83, 92, .16)' },
+  { name: '深岩灰', color: '#171c21', glow: 'rgba(106, 121, 132, .16)' },
+  { name: '雾面灰', color: '#2b3036', glow: 'rgba(180, 188, 190, .12)' },
+  { name: '工作室白', color: '#f1f0eb', glow: 'rgba(255, 255, 255, .42)' },
+  { name: '冷雾白', color: '#dfe7e9', glow: 'rgba(116, 177, 194, .18)' },
+  { name: '暖灰白', color: '#e7dfd4', glow: 'rgba(215, 170, 115, .18)' },
+] as const;
 
 export default function App() {
   const [tracks, setTracks] = useState<Track[]>(PRESET_TRACKS);
@@ -21,11 +32,14 @@ export default function App() {
   const [typographyStyle, setTypographyStyle] = useState<TypographyStyle>('pop_sticker');
   const [theme, setTheme] = useState<LightingTheme>('pure_white');
   const [bassMultiplier, setBassMultiplier] = useState(1.0);
-  const [viewEnvironment, setViewEnvironment] = useState<'desktop' | 'fullscreen'>('desktop');
+  const viewEnvironment = 'desktop' as const;
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isSpotifyModalOpen, setIsSpotifyModalOpen] = useState(false);
+  const [isLyricsCorrectionOpen, setIsLyricsCorrectionOpen] = useState(false);
   const [showGuideTip, setShowGuideTip] = useState(true);
+  const [backgroundIndex, setBackgroundIndex] = useState(0);
+  const [frameMaterialIndex, setFrameMaterialIndex] = useState(0);
 
   // Spotify integration hook
   const spotify = useSpotifySync();
@@ -264,69 +278,41 @@ export default function App() {
     <div
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleWindowDrop}
-      className="relative w-screen h-screen overflow-hidden flex flex-col justify-between bg-[#0a0c0f] text-neutral-200 select-none"
+      className="player-shell relative w-screen h-screen overflow-hidden flex flex-col justify-between text-neutral-200 select-none"
+      style={{ backgroundColor: PLAYER_BACKGROUNDS[backgroundIndex].color, backgroundImage: `radial-gradient(circle at 50% 18%, ${PLAYER_BACKGROUNDS[backgroundIndex].glow}, transparent 46%)` }}
     >
       {/* ---------------- 1. TOP BAR CONTRACT ---------------- */}
       {!isFullscreen && (
-        <header className="flex items-center justify-between gap-8 px-6 md:px-10 py-3.5 border-b border-[#1f242d] bg-[#0e1014]/90 backdrop-blur-md z-30 shrink-0">
+        <header className="console-header flex items-center justify-between gap-8 px-6 md:px-10 py-3.5 border-b border-[#1f242d] bg-[#0e1014]/90 backdrop-blur-md z-30 shrink-0">
           {/* Zone 1: Brand Wordmark */}
-          <div className="flex items-center gap-3 whitespace-nowrap shrink-0">
-            <span className="text-sm md:text-base font-bold font-mono tracking-[0.2em] text-white">
+          <div className="vitrobox-brand flex items-baseline gap-3 md:gap-4 whitespace-nowrap shrink-0">
+            <span className="text-[18px] md:text-[26px] leading-tight font-bold font-mono tracking-[0.2em]">
               VITROBOX
             </span>
-            <span className="hidden sm:inline-block text-[11px] font-sans text-[#8e98a5]">
-              16:9 悬浮歌词音箱
-            </span>
+            <span className="text-[11px] md:text-[14px] font-mono tracking-[0.12em]">Reyno LAB</span>
           </div>
 
-          {/* Zone 2: Clean single-line nav links */}
-          <nav className="hidden lg:flex items-center gap-7 text-xs font-medium text-[#8e98a5]">
+          {/* Primary actions */}
+          <div className="console-actions flex items-center gap-3 shrink-0">
             <button
-              onClick={() => handleModeChange('aquarium')}
-              className={`hover:text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                mode === 'aquarium' ? 'text-white' : ''
-              }`}
+              onClick={() => setIsLyricsCorrectionOpen(true)}
+              className="console-primary flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap"
+              title="搜索、上传或校对当前歌曲的歌词"
             >
-              水族漂浮
-            </button>
-            <button
-              onClick={() => handleModeChange('graphic_poster')}
-              className={`hover:text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                mode === 'graphic_poster' ? 'text-white' : ''
-              }`}
-            >
-              情绪海报
-            </button>
-            <button
-              onClick={() => handleModeChange('fluid_spectrum')}
-              className={`hover:text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                mode === 'fluid_spectrum' ? 'text-white' : ''
-              }`}
-            >
-              流体声波
-            </button>
-            <button
-              onClick={() => handleModeChange('minimalist')}
-              className={`hover:text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                mode === 'minimalist' ? 'text-white' : ''
-              }`}
-            >
-              极简先锋
+              <FilePenLine className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">歌词修正</span>
             </button>
             <button
               onClick={() => setIsUploadModalOpen(true)}
-              className="hover:text-white transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="console-primary flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap"
+              title="载入音频"
             >
-              预设曲库
+              <Music2 className="w-3.5 h-3.5" /><span className="hidden sm:inline">载入音频</span>
             </button>
-          </nav>
-
-          {/* Zone 3: Spotify, Fullscreen & Load Actions */}
-          <div className="flex items-center gap-3 shrink-0">
             {/* Spotify Connect Button */}
             <button
               onClick={() => setIsSpotifyModalOpen(true)}
-              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer shadow-sm ${
+              className={`console-spotify ${spotify.isSyncActive ? 'is-synced' : ''} flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer shadow-sm ${
                 spotify.isSyncActive
                   ? 'bg-[#1DB954]/20 border-[#1DB954] text-[#1DB954] hover:bg-[#1DB954]/30'
                   : spotify.isAuthenticated
@@ -361,14 +347,6 @@ export default function App() {
               )}
             </button>
 
-            {/* Load preset / custom modal */}
-            <button
-              onClick={() => setIsUploadModalOpen(true)}
-              className="flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0284c7] hover:bg-[#0369a1] rounded-lg shadow-md transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-            >
-              <Music2 className="w-3.5 h-3.5" />
-              <span>载入音频</span>
-            </button>
           </div>
         </header>
       )}
@@ -387,8 +365,14 @@ export default function App() {
               }}
             />
 
-            {/* Desktop Table Surface */}
-            <div className="absolute bottom-0 inset-x-0 h-[38%] bg-gradient-to-b from-[#181a1e] via-[#101215] to-[#090a0d] border-t border-[#262b34] shadow-[inset_0_10px_20px_rgba(0,0,0,0.8)]">
+            {/* Desktop lower area: keep the active shell background continuous */}
+            <div
+              className="absolute bottom-0 inset-x-0 h-[38%]"
+              style={{
+                backgroundColor: 'transparent',
+                boxShadow: 'inset 0 10px 20px rgba(0,0,0,0.025)',
+              }}
+            >
               <div
                 className="absolute inset-0 opacity-15"
                 style={{
@@ -396,7 +380,6 @@ export default function App() {
                     'repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(255,255,255,0.02) 50px, rgba(255,255,255,0.02) 100px)',
                 }}
               />
-              <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#454c59]/50 to-transparent" />
             </div>
           </div>
         )}
@@ -431,12 +414,18 @@ export default function App() {
           onTogglePlay={handleTogglePlay}
           currentTime={activeCurrentTime}
           lyrics={activeTrack.lyrics}
+          trackTitle={activeTrack.title}
+          trackArtist={activeTrack.artist}
+          coverArt={activeTrack.coverArt}
           audioAnalysis={audioAnalysis}
           viewEnvironment={viewEnvironment}
           typographyStyle={typographyStyle}
           onTypographyStyleChange={setTypographyStyle}
           isFullscreen={isFullscreen}
           onToggleFullscreen={toggleFullscreen}
+          backgroundColor={PLAYER_BACKGROUNDS[backgroundIndex].color}
+          backgroundGlow={PLAYER_BACKGROUNDS[backgroundIndex].glow}
+          frameMaterial={FRAME_MATERIALS[frameMaterialIndex]}
         />
       </main>
 
@@ -456,16 +445,13 @@ export default function App() {
         onModeChange={handleModeChange}
         theme={theme}
         onThemeChange={setTheme}
-        viewEnvironment={viewEnvironment}
-        onToggleViewEnvironment={() =>
-          setViewEnvironment((prev) => (prev === 'desktop' ? 'fullscreen' : 'desktop'))
-        }
-        onOpenUploadModal={() => setIsUploadModalOpen(true)}
-        isFullscreen={isFullscreen}
-        onToggleFullscreen={toggleFullscreen}
-        isSpotifyConnected={spotify.isAuthenticated}
+        typographyStyle={typographyStyle}
+        onTypographyStyleChange={setTypographyStyle}
         isSpotifySyncActive={spotify.isSyncActive}
-        onOpenSpotifyModal={() => setIsSpotifyModalOpen(true)}
+        backgroundName={PLAYER_BACKGROUNDS[backgroundIndex].name}
+        frameMaterial={FRAME_MATERIALS[frameMaterialIndex]}
+        onNextFrameMaterial={() => setFrameMaterialIndex((index) => (index + 1) % FRAME_MATERIALS.length)}
+        onNextBackground={() => setBackgroundIndex((index) => (index + 1) % PLAYER_BACKGROUNDS.length)}
       />
 
       {/* ---------------- 4. AUDIO & LRC UPLOAD / PRESET MODAL ---------------- */}
@@ -502,6 +488,21 @@ export default function App() {
           }
           globalAudioEngine.loadTrack(newTrack, true);
           setIsPlaying(true);
+        }}
+      />
+
+      <LyricsCorrectionModal
+        isOpen={isLyricsCorrectionOpen}
+        track={activeTrack}
+        onClose={() => setIsLyricsCorrectionOpen(false)}
+        onApply={(lyrics) => {
+          if (isUsingSpotify) {
+            spotify.replaceCurrentSpotifyLyrics(lyrics);
+            return;
+          }
+          setTracks((previous) => previous.map((track, index) =>
+            index === currentTrackIndex ? { ...track, lyrics } : track
+          ));
         }}
       />
     </div>

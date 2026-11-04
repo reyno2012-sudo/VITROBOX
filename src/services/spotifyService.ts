@@ -178,6 +178,23 @@ export async function getSpotifyLyrics(
   return res.json();
 }
 
+export interface LrcLibSearchResult {
+  id: number;
+  trackName: string;
+  artistName: string;
+  albumName?: string;
+  duration?: number;
+  syncedLyrics?: string | null;
+  plainLyrics?: string | null;
+}
+
+export async function searchLrcLibLyrics(track: string, artist: string): Promise<LrcLibSearchResult[]> {
+  const params = new URLSearchParams({ track, artist });
+  const response = await fetch(`/api/lyrics/lrclib/search?${params}`);
+  if (!response.ok) throw new Error('未能从 LRCLIB 搜索歌词');
+  return response.json();
+}
+
 // -----------------------------------------------------------
 // PKCE (Proof Key for Code Exchange) Helpers (No Client Secret)
 // -----------------------------------------------------------

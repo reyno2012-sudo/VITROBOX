@@ -1034,6 +1034,39 @@ app.post('/api/spotify/control/:action', async (req: Request, res: Response) => 
 // ==========================================
 // 6. Real-Time Lyrics Retrieval (LRCLIB Integration)
 // ==========================================
+app.get('/api/lyrics/lrclib/search', async (req: Request, res: Response) => {
+  const trackName = String(req.query.track || '').trim();
+  const artistName = String(req.query.artist || '').trim();
+  if (!trackName) {
+    res.status(400).json({ error: 'Track name is required' });
+    return;
+  }
+
+  try {
+    const params = new URLSearchParams({ track_name: trackName });
+    if (artistName) params.set('artist_name', artistName);
+    const response = await fetch(`https://lrclib.net/api/search?${params}`, {
+      headers: { 'User-Agent': 'VITROBOX/1.0 (lyrics correction tool)' },
+    });
+    if (!response.ok) {
+      res.status(response.status).json({ error: 'LRCLIB search failed' });
+      return;
+    }
+    const results = await response.json();
+    res.json(Array.isArray(results) ? results.slice(0, 12).map((item: any) => ({
+      id: item.id,
+      trackName: item.trackName,
+      artistName: item.artistName,
+      albumName: item.albumName,
+      duration: item.duration,
+      syncedLyrics: item.syncedLyrics || null,
+      plainLyrics: item.plainLyrics || null,
+    })) : []);
+  } catch (error: any) {
+    res.status(502).json({ error: error.message || 'LRCLIB is unavailable' });
+  }
+});
+
 function cleanTrackTitle(title: string): string {
   return title
     .replace(/\s*-\s*(Remastered|Deluxe|Live|Radio Edit|Bonus Track|Mono|Stereo).*/i, '')

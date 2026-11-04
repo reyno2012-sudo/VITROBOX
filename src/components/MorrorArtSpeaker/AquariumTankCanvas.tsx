@@ -1,3 +1,4 @@
+import { KineticLyrics } from './KineticLyrics';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { AudioAnalysis, DisplayMode, LightingTheme, LyricLine, TypographyStyle } from '../../types';
 import { LIGHTING_THEMES } from '../../constants/presets';
@@ -7,6 +8,7 @@ interface AquariumTankCanvasProps {
   theme: LightingTheme;
   currentTime: number;
   lyrics: LyricLine[];
+  fullscreenLyrics?: boolean;
   audioAnalysis: AudioAnalysis;
   bassIntensity: number;
   parallaxOffset: { x: number; y: number };
@@ -49,6 +51,7 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
   theme,
   currentTime,
   lyrics,
+  fullscreenLyrics,
   audioAnalysis,
   bassIntensity,
   parallaxOffset,
@@ -698,14 +701,16 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
           ref={canvasRef}
           width={1280}
           height={720}
-          className="absolute inset-0 w-full h-full pointer-events-none opacity-85"
+          className={`absolute inset-0 w-full h-full pointer-events-none ${fullscreenLyrics && mode !== 'fluid_spectrum' ? 'opacity-0' : 'opacity-85'}`}
         />
 
         {/* ---------------- 3. MORROR ART AVANT-GARDE KINETIC TYPOGRAPHY LAYER ---------------- */}
         {/* Positioned at z-index 15, in front of backboard (-80px) and behind speakers (+28px) */}
-        {activeStyle === 'pop_sticker' && renderPopStickerStyle()}
-        {activeStyle === 'swiss_editorial' && renderSwissEditorialStyle()}
-        {activeStyle === 'floating_mist' && renderFloatingMistStyle()}
+        {!fullscreenLyrics && activeStyle === 'pop_sticker' && renderPopStickerStyle()}
+        {!fullscreenLyrics && activeStyle === 'swiss_editorial' && renderSwissEditorialStyle()}
+        {!fullscreenLyrics && activeStyle === 'floating_mist' && renderFloatingMistStyle()}
+
+        {fullscreenLyrics && <KineticLyrics lyrics={lyrics} currentTime={currentTime} typographyStyle={typographyStyle} theme={theme} />}
 
         {/* ---------------- 4. WATER MEDIUM TINT & VOLUME REFRACTION ---------------- */}
         <div
