@@ -32,7 +32,7 @@ export default function App() {
   const [volume, setVolume] = useState(0.85);
   const [mode, setMode] = useState<DisplayMode>('aquarium');
   const [typographyStyle, setTypographyStyle] = useState<TypographyStyle>('pop_sticker');
-  const [theme, setTheme] = useState<LightingTheme>('pure_white');
+  const [theme, setTheme] = useState<LightingTheme>('warm_amber');
   const [bassMultiplier, setBassMultiplier] = useState(1.0);
   const viewEnvironment = 'desktop' as const;
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -41,7 +41,7 @@ export default function App() {
   const [isLyricsCorrectionOpen, setIsLyricsCorrectionOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [showGuideTip, setShowGuideTip] = useState(true);
-  const [backgroundIndex, setBackgroundIndex] = useState(0);
+  const [backgroundIndex, setBackgroundIndex] = useState(5);
   const [frameMaterialIndex, setFrameMaterialIndex] = useState(0);
 
   // Spotify integration hook
