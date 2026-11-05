@@ -80,6 +80,51 @@ function getHeaders(token?: string | null): HeadersInit {
   return headers;
 }
 
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshPkceToken(): Promise<boolean> {
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = (async () => {
+    const clientId = localStorage.getItem('sp_client_id');
+    const refreshToken = localStorage.getItem('sp_refresh_token');
+    if (!clientId || !refreshToken) return false;
+    const res = await fetch('/api/auth/spotify/pkce-refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId, refreshToken }),
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    if (!data.access_token) return false;
+    localStorage.setItem('sp_access_token', data.access_token);
+    localStorage.setItem('sp_access_expires_at', String(Date.now() + (data.expires_in || 3600) * 1000));
+    if (data.refresh_token) localStorage.setItem('sp_refresh_token', data.refresh_token);
+    return true;
+  })().finally(() => { refreshPromise = null; });
+  return refreshPromise;
+}
+
+async function spotifyRequest(url: string, init: RequestInit = {}): Promise<Response> {
+  const accessToken = localStorage.getItem('sp_access_token');
+  const expiresAt = Number(localStorage.getItem('sp_access_expires_at') || 0);
+  if (accessToken && expiresAt && Date.now() > expiresAt - 90000) await refreshPkceToken();
+  const send = () => fetch(url, {
+    ...init,
+    credentials: 'include',
+    headers: {
+      ...getHeaders(),
+      ...(init.headers || {}),
+      ...(localStorage.getItem('sp_access_token')
+        ? { 'X-Spotify-Access-Token': localStorage.getItem('sp_access_token')! } : {}),
+    },
+  });
+  let res = await send();
+  if (res.status === 401 && localStorage.getItem('sp_refresh_token') && await refreshPkceToken()) {
+    res = await send();
+  }
+  return res;
+}
+
 export async function getSpotifyConfig(): Promise<{
   configured: boolean;
   redirectUri: string;
@@ -106,11 +151,7 @@ export async function getSpotifyAuthUrl(credentials?: {
 }
 
 export async function getSpotifyStatus(): Promise<{ authenticated: boolean; user?: SpotifyUser }> {
-  const token = spotifyStorage.getToken();
-  const res = await fetch('/api/spotify/status', {
-    headers: getHeaders(token),
-    credentials: 'include',
-  });
+  const res = await spotifyRequest('/api/spotify/status');
   if (!res.ok) return { authenticated: false };
   return res.json();
 }
@@ -129,11 +170,7 @@ export async function logoutSpotify(): Promise<void> {
 }
 
 export async function getSpotifyPlayback(): Promise<SpotifyPlaybackState> {
-  const token = spotifyStorage.getToken();
-  const res = await fetch('/api/spotify/playback', {
-    headers: getHeaders(token),
-    credentials: 'include',
-  });
+  const res = await spotifyRequest('/api/spotify/playback');
   if (!res.ok) {
     const errorBody = await res.json().catch(() => ({}));
     throw new Error(errorBody.error || `Playback fetch error (${res.status})`);
@@ -145,11 +182,8 @@ export async function spotifyControl(
   action: 'play' | 'pause' | 'next' | 'prev' | 'seek' | 'volume',
   payload?: { positionMs?: number; volumePercent?: number }
 ): Promise<boolean> {
-  const token = spotifyStorage.getToken();
-  const res = await fetch(`/api/spotify/control/${action}`, {
+  const res = await spotifyRequest(`/api/spotify/control/${action}`, {
     method: 'POST',
-    headers: getHeaders(token),
-    credentials: 'include',
     body: payload ? JSON.stringify(payload) : undefined,
   });
   return res.ok;
@@ -259,6 +293,7 @@ export async function exchangePkceToken(
   if (data.accessToken) {
     spotifyStorage.setToken(data.sessionId || data.accessToken);
     localStorage.setItem('sp_access_token', data.accessToken);
+    localStorage.setItem('sp_access_expires_at', String(Date.now() + (data.expiresIn || 3600) * 1000));
     if (data.refreshToken) localStorage.setItem('sp_refresh_token', data.refreshToken);
   }
   return data;

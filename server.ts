@@ -52,6 +52,7 @@ function loadSessions(): Map<string, SpotifySession> {
 }
 
 function saveSessions(map: Map<string, SpotifySession>) {
+  if (process.env.VERCEL) return;
   try {
     const obj: Record<string, SpotifySession> = {};
     for (const [id, s] of map.entries()) {
@@ -114,18 +115,22 @@ async function forceRefreshToken(sessionId: string): Promise<string | null> {
   if (!session || !session.refreshToken) return null;
 
   try {
-    const basicAuth = Buffer.from(`${session.clientId}:${session.clientSecret}`).toString('base64');
     const params = new URLSearchParams({
       grant_type: 'refresh_token',
       refresh_token: session.refreshToken,
     });
+    if (!session.clientSecret) params.set('client_id', session.clientId);
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    if (session.clientSecret) {
+      const basicAuth = Buffer.from(`${session.clientId}:${session.clientSecret}`).toString('base64');
+      headers.Authorization = `Basic ${basicAuth}`;
+    }
 
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${basicAuth}`,
-      },
+      headers,
       body: params.toString(),
     });
 
@@ -160,6 +165,15 @@ async function getValidToken(sessionId: string): Promise<string | null> {
   }
 
   return session.accessToken;
+}
+
+// PKCE tokens travel with each same-origin request. Serverless instances do not
+// share the in-memory sessions Map and Vercel's deployment filesystem is read-only.
+async function getRequestToken(req: Request): Promise<string | null> {
+  const accessToken = req.get('x-spotify-access-token');
+  if (accessToken) return accessToken;
+  const sessionId = getSessionId(req);
+  return sessionId ? getValidToken(sessionId) : null;
 }
 
 // ==========================================
@@ -544,18 +558,27 @@ app.get('/auth/callback/', handleAuthCallback);
 // 3. Spotify Authentication Status & Logout
 // ==========================================
 app.get('/api/spotify/status', async (req: Request, res: Response) => {
-  const sessionId = getSessionId(req);
-  if (!sessionId) {
-    res.json({ authenticated: false });
-    return;
-  }
-
-  const token = await getValidToken(sessionId);
+  const token = await getRequestToken(req);
   if (!token) {
     res.json({ authenticated: false });
     return;
   }
-
+  if (req.get('x-spotify-access-token')) {
+    const meRes = await fetch('https://api.spotify.com/v1/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!meRes.ok) {
+      res.status(meRes.status).json({ authenticated: false });
+      return;
+    }
+    const me = await meRes.json();
+    res.json({ authenticated: true, user: {
+      id: me.id, displayName: me.display_name || me.id,
+      email: me.email, avatar: me.images?.[0]?.url, product: me.product,
+    } });
+    return;
+  }
+  const sessionId = getSessionId(req)!;
   const session = sessions.get(sessionId);
   if (session && (!session.user || session.user.id === 'unknown')) {
     try {
@@ -597,12 +620,7 @@ app.post('/api/spotify/logout', (req: Request, res: Response) => {
 // ==========================================
 app.get('/api/spotify/playback', async (req: Request, res: Response) => {
   const sessionId = getSessionId(req);
-  if (!sessionId) {
-    res.status(401).json({ error: 'Not authenticated with Spotify' });
-    return;
-  }
-
-  let token = await getValidToken(sessionId);
+  let token = await getRequestToken(req);
   if (!token) {
     res.status(401).json({ error: 'Token expired or invalid' });
     return;
@@ -615,7 +633,8 @@ app.get('/api/spotify/playback', async (req: Request, res: Response) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (r.status === 401) {
-        const refreshedToken = await forceRefreshToken(sessionId);
+        const refreshedToken = req.get('x-spotify-access-token') || !sessionId
+          ? null : await forceRefreshToken(sessionId);
         if (refreshedToken) {
           token = refreshedToken;
           r = await fetch(url, {
@@ -628,6 +647,14 @@ app.get('/api/spotify/playback', async (req: Request, res: Response) => {
 
     // 1. Try full player endpoint
     let spotifyRes = await fetchWithRetry('https://api.spotify.com/v1/me/player');
+    if (spotifyRes.status === 401 || spotifyRes.status === 429 || spotifyRes.status >= 500) {
+      const retryAfter = spotifyRes.headers.get('Retry-After');
+      if (retryAfter) res.set('Retry-After', retryAfter);
+      res.status(spotifyRes.status).json({
+        error: `Spotify playback unavailable (${spotifyRes.status})`,
+      });
+      return;
+    }
 
     let isPlaying = false;
     let progressMs = 0;
@@ -681,6 +708,10 @@ app.get('/api/spotify/playback', async (req: Request, res: Response) => {
     // 2. Fallback to /player/currently-playing
     if (!item && !isPremiumRestricted && !isUserNotRegistered) {
       const currentRes = await fetchWithRetry('https://api.spotify.com/v1/me/player/currently-playing');
+      if (currentRes.status === 401 || currentRes.status === 429 || currentRes.status >= 500) {
+        res.status(currentRes.status).json({ error: `Spotify playback unavailable (${currentRes.status})` });
+        return;
+      }
       if (currentRes.status === 403) {
         await check403Error(currentRes);
       } else if (currentRes.ok && currentRes.status !== 204 && currentRes.status !== 202) {
@@ -699,30 +730,6 @@ app.get('/api/spotify/playback', async (req: Request, res: Response) => {
         } catch (e) {
           console.warn('Could not parse /v1/me/player/currently-playing json:', e);
         }
-      }
-    }
-
-    // 3. Fallback to /v1/me/player/recently-played if paused or no active stream
-    if (!item && !isPremiumRestricted && !isUserNotRegistered) {
-      try {
-        const recentRes = await fetchWithRetry('https://api.spotify.com/v1/me/player/recently-played?limit=1');
-        if (recentRes.ok && recentRes.status !== 204) {
-          const recentData = await recentRes.json();
-          if (recentData.items && recentData.items.length > 0) {
-            item = recentData.items[0].track;
-            isPlaying = false;
-            progressMs = 0;
-            if (!device) {
-              device = {
-                name: 'Spotify 最近播放',
-                type: 'Computer',
-                volumePercent: 100,
-              };
-            }
-          }
-        }
-      } catch (e) {
-        console.warn('Could not fetch recently-played:', e);
       }
     }
 
@@ -953,13 +960,7 @@ app.post('/api/spotify/resolve-track', async (req: Request, res: Response) => {
 // ==========================================
 app.post('/api/spotify/control/:action', async (req: Request, res: Response) => {
   const { action } = req.params;
-  const sessionId = getSessionId(req);
-  if (!sessionId) {
-    res.status(401).json({ error: 'Not authenticated' });
-    return;
-  }
-
-  const token = await getValidToken(sessionId);
+  const token = await getRequestToken(req);
   if (!token) {
     res.status(401).json({ error: 'Token invalid' });
     return;

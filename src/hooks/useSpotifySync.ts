@@ -19,6 +19,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<SpotifyUser | null>(null);
   const [isSyncActive, setIsSyncActive] = useState(false);
+  const [isPlaybackHealthy, setIsPlaybackHealthy] = useState(false);
   const [playbackState, setPlaybackState] = useState<{
     isPlaying: boolean;
     currentTime: number;
@@ -171,6 +172,10 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
         setIsSyncActive(true);
       } else {
         setUser(null);
+        setIsSyncActive(false);
+        setIsPlaybackHealthy(false);
+        setCurrentSpotifyTrack(null);
+        lastTrackIdRef.current = null;
       }
     } catch {
       setIsAuthenticated(false);
@@ -270,10 +275,12 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
     await logoutSpotify();
     localStorage.removeItem('sp_access_token');
     localStorage.removeItem('sp_refresh_token');
+    localStorage.removeItem('sp_access_expires_at');
     localStorage.removeItem('sp_code_verifier');
     setIsAuthenticated(false);
     setUser(null);
     setIsSyncActive(false);
+    setIsPlaybackHealthy(false);
     setCurrentSpotifyTrack(null);
     lastTrackIdRef.current = null;
     setStatusMessage('已断开连接');
@@ -304,6 +311,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
 
       const track = data.track;
       const isPlaying = data.isPlaying;
+      setIsPlaybackHealthy(Boolean(track) && !data.isPremiumRestricted && !data.isUserNotRegistered);
       const progressSec =
         (data.progressMs || 0) / 1000 +
         (isPlaying ? networkLatencySec : 0) +
@@ -350,6 +358,8 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
       }
 
       if (!track) {
+        setCurrentSpotifyTrack(null);
+        lastTrackIdRef.current = null;
         setStatusMessage(
           data.device
             ? `设备在线: ${data.device.name} (等待播放)`
@@ -405,10 +415,16 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
       return { success: true, track: currentSpotifyTrack, message: `正在播放：${track.title}` };
     } catch (err: any) {
       console.warn('Playback poll error:', err);
+      setIsPlaybackHealthy(false);
+      isPlayingRef.current = false;
+      globalAudioEngine.setExternalPlayback(false);
       try {
         const s = await getSpotifyStatus();
         if (!s.authenticated) {
           setIsAuthenticated(false);
+          setIsSyncActive(false);
+          setCurrentSpotifyTrack(null);
+          lastTrackIdRef.current = null;
           setStatusMessage('Spotify 认证已失效，请重新连接');
         } else {
           setStatusMessage('正在重新获取 Spotify 播放数据...');
@@ -491,6 +507,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
       lastTrackIdRef.current = newTrack.id;
       setCurrentSpotifyTrack(newTrack);
       setIsSyncActive(true);
+      setIsPlaybackHealthy(true);
       setStatusMessage(`已同步 Spotify 曲目: ${newTrack.title} - ${newTrack.artist}`);
 
       setPlaybackState({
@@ -521,7 +538,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
   useEffect(() => {
     if (isSyncActive && isAuthenticated) {
       pollPlayback();
-      pollTimerRef.current = window.setInterval(pollPlayback, 1200);
+      pollTimerRef.current = window.setInterval(pollPlayback, 4000);
     } else {
       if (pollTimerRef.current) clearInterval(pollTimerRef.current);
       globalAudioEngine.setExternalPlayback(false);
@@ -592,6 +609,7 @@ export function useSpotifySync(onTrackChange?: (track: Track) => void) {
     isAuthenticated,
     user,
     isSyncActive,
+    isPlaybackHealthy,
     setIsSyncActive,
     statusMessage,
     isLoadingAuth,
