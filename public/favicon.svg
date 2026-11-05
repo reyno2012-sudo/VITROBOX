@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="body" cx="39%" cy="31%" r="71%">
+      <stop stop-color="#6d7379"/>
+      <stop offset=".33" stop-color="#34393e"/>
+      <stop offset=".72" stop-color="#15191c"/>
+      <stop offset="1" stop-color="#080a0c"/>
+    </radialGradient>
+    <linearGradient id="metal" x1=".16" y1="0" x2=".87" y2="1">
+      <stop stop-color="#e0e3e6"/>
+      <stop offset=".35" stop-color="#8e9499"/>
+      <stop offset=".67" stop-color="#292f34"/>
+      <stop offset="1" stop-color="#b9bec2"/>
+    </linearGradient>
+    <radialGradient id="cone">
+      <stop stop-color="#101416"/>
+      <stop offset=".7" stop-color="#1a1e21"/>
+      <stop offset=".86" stop-color="#62696f"/>
+      <stop offset="1" stop-color="#0b0e10"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0b0e10"/>
+  <g transform="rotate(-42 32 32)">
+    <rect x="27" y="1" width="10" height="10" rx="1.5" fill="#4f555a" stroke="#92989c" stroke-width=".8"/>
+    <rect x="27" y="53" width="10" height="10" rx="1.5" fill="#4f555a" stroke="#92989c" stroke-width=".8"/>
+  </g>
+  <circle cx="32" cy="32" r="27" fill="url(#body)" stroke="url(#metal)" stroke-width="2"/>
+  <circle cx="32" cy="32" r="24" fill="#0d1012" stroke="#697077" stroke-width=".8"/>
+  <circle cx="32" cy="32" r="21.5" fill="none" stroke="#42484d" stroke-width="1.5"/>
+  <circle cx="32" cy="32" r="19.3" fill="url(#cone)" stroke="url(#metal)" stroke-width="1.8"/>
+  <circle cx="32" cy="32" r="13" fill="#0a0d0f" stroke="#a4aaae" stroke-width="1.2"/>
+  <circle cx="32" cy="32" r="11.2" fill="#0d1113"/>
+  <path d="M24.5 24.5 39.5 39.5" stroke="#454c51" stroke-width="2" opacity=".75"/>
+  <path d="M29 55h6" stroke="#ff6500" stroke-width="2.8" stroke-linecap="square"/>
+</svg>
