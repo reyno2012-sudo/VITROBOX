@@ -8,7 +8,7 @@ import { LIGHTING_THEMES } from '../../constants/presets';
 import { Minimize2 } from 'lucide-react';
 import { FRAME_MATERIALS, FrameMaterial, frameMaterialStyle } from '../../constants/frameMaterials';
 
-interface MorrorArtSpeakerProps {
+interface VitroboxSpeakerProps {
   mode: DisplayMode;
   onModeChange: (mode: DisplayMode) => void;
   theme: LightingTheme;
@@ -42,7 +42,7 @@ interface MorrorArtSpeakerProps {
   onVideoEnded?: React.ReactEventHandler<HTMLVideoElement>;
 }
 
-export const MorrorArtSpeaker: React.FC<MorrorArtSpeakerProps> = ({
+export const VitroboxSpeaker: React.FC<VitroboxSpeakerProps> = ({
   mode,
   onModeChange,
   theme,

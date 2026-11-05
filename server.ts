@@ -897,7 +897,7 @@ app.post('/api/spotify/resolve-track', async (req: Request, res: Response) => {
     // 1. Fetch lyrics from LRCLIB
     const cleanedTrack = cleanTrackTitle(trackTitle);
     const headers = {
-      'User-Agent': 'VITROBOX-Lyric-Speaker/2.0 (aquarium speaker; https://github.com/morror-art)',
+      'User-Agent': 'VITROBOX-V1/1.0 (https://github.com/reyno2012-sudo/VITROBOX)',
     };
 
     let syncedLyrics: string | null = null;
@@ -1145,7 +1145,7 @@ app.get('/api/spotify/lyrics', async (req: Request, res: Response) => {
 
   // 3. Fallback to LRCLIB
   const headers = {
-    'User-Agent': 'VITROBOX-Lyric-Speaker/2.0 (aquarium speaker; https://github.com/morror-art)',
+      'User-Agent': 'VITROBOX-V1/1.0 (https://github.com/reyno2012-sudo/VITROBOX)',
   };
 
   try {
@@ -1232,7 +1232,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`MORROR ART Server running on port ${PORT}`);
+    console.log(`VITROBOX V1 Server running on port ${PORT}`);
   });
 }
 

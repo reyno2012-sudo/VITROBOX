@@ -109,7 +109,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
         { id: 'c-3', time: 12.0, text: '水波轻抚 透明箱体泛起层层声学涟漪', highlightWords: ['水波', '涟漪'], layoutStyle: 'top_right' },
         { id: 'c-4', time: 18.0, text: '低音沉浸 悬浮空间随律动呼吸', highlightWords: ['低音', '悬浮'], layoutStyle: 'bottom_left' },
         { id: 'c-5', time: 24.0, text: '音符如微光在透明水体中流动', highlightWords: ['微光', '流动'], layoutStyle: 'top_right' },
-        { id: 'c-6', time: 32.0, text: 'MORROR ART A2 · 空间悬浮歌词音响', highlightWords: ['MORROR', 'A2'], layoutStyle: 'bottom_left' },
+        { id: 'c-6', time: 32.0, text: 'VITROBOX V1 · 空间悬浮歌词音响', highlightWords: ['VITROBOX', 'V1'], layoutStyle: 'bottom_left' },
       ];
     }
 
@@ -192,7 +192,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
           {activeTab === 'presets' && (
             <div className="space-y-2.5">
               <div className="text-xs text-[#9aa4b0] mb-3">
-                精选与 MORROR ART A2 极度适配的动态空间歌词曲目：
+                精选与 VITROBOX V1 极度适配的动态空间歌词曲目：
               </div>
               <div className="grid grid-cols-1 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
                 {PRESET_TRACKS.map((t) => (

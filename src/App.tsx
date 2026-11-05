@@ -4,7 +4,7 @@ import { PRESET_TRACKS } from './constants/presets';
 import { FRAME_MATERIALS } from './constants/frameMaterials';
 import { DEMO_VIDEO } from './constants/demoVideo';
 import { globalAudioEngine } from './utils/audioEngine';
-import { MorrorArtSpeaker } from './components/MorrorArtSpeaker/MorrorArtSpeaker';
+import { VitroboxSpeaker } from './components/VitroboxSpeaker/VitroboxSpeaker';
 import { BottomControlDock } from './components/PlayerControls/BottomControlDock';
 import { UploadModal } from './components/UploadModal';
 import { SpotifyConnectModal } from './components/Spotify/SpotifyConnectModal';
@@ -288,7 +288,7 @@ export default function App() {
           { id: 'd-1', time: 1.0, text: audioFile.name.replace(/\.[^/.]+$/, ''), highlightWords: ['Audio'], layoutStyle: 'top_right' as const },
           { id: 'd-2', time: 6.0, text: '本地拖入音频正在播放 · 空间透明水箱透光', highlightWords: ['本地', '透明水箱'], layoutStyle: 'bottom_left' as const },
           { id: 'd-3', time: 12.0, text: '双悬浮声学振膜 随重低音律动', highlightWords: ['双悬浮', '重低音'], layoutStyle: 'top_right' as const },
-          { id: 'd-4', time: 18.0, text: 'MORROR ART A2 · 空间歌词视界', highlightWords: ['MORROR', 'A2'], layoutStyle: 'bottom_left' as const },
+          { id: 'd-4', time: 18.0, text: 'VITROBOX V1 · 空间歌词视界', highlightWords: ['VITROBOX', 'V1'], layoutStyle: 'bottom_left' as const },
         ];
       }
 
@@ -442,8 +442,8 @@ export default function App() {
           </div>
         )}
 
-        {/* ----------------- MORROR ART A2 SPEAKER SYSTEM (16:9 Ratio) ----------------- */}
-        <MorrorArtSpeaker
+        {/* ----------------- VITROBOX V1 SPEAKER SYSTEM (16:9 Ratio) ----------------- */}
+        <VitroboxSpeaker
           mode={mode}
           onModeChange={handleModeChange}
           theme={theme}

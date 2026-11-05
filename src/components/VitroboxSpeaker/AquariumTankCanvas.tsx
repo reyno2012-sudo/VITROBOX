@@ -46,7 +46,7 @@ const formatTimestamp = (seconds: number): string => {
 };
 
 /**
- * AquariumTankCanvas recreates MORROR ART / MorningBlues avant-garde kinetic typography:
+ * AquariumTankCanvas renders VITROBOX V1 kinetic typography:
  * - Z-Index & 3D Layering: Sits behind the hollow ring speakers so text physically passes behind
  *   the black outer ring and shines through the central 100% transparent aperture.
  * - Style A: Pop Sticker (波普立体贴纸风) - Ultra-bold display font, 2px solid black stroke, hard 4px/6px solid shadows.
@@ -454,7 +454,7 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
         <div className="w-full flex items-center justify-between pb-2 border-b" style={{ borderColor: lineRuleColor }}>
           <div className="flex items-center gap-3">
             <span className="font-mono text-[10px] tracking-[0.25em] uppercase font-bold opacity-75">
-              MORROR ART // EDITORIAL SYSTEM
+              VITROBOX V1 // EDITORIAL SYSTEM
             </span>
             <div className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
             <span className="font-mono text-[10px] tracking-wider opacity-60">
@@ -739,7 +739,7 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
           className={`absolute inset-0 w-full h-full pointer-events-none ${fullscreenLyrics && mode !== 'fluid_spectrum' ? 'opacity-0' : 'opacity-85'}`}
         />
 
-        {/* ---------------- 3. MORROR ART AVANT-GARDE KINETIC TYPOGRAPHY LAYER ---------------- */}
+        {/* ---------------- 3. VITROBOX V1 KINETIC TYPOGRAPHY LAYER ---------------- */}
         {/* Positioned at z-index 15, in front of backboard (-80px) and behind speakers (+28px) */}
         {!demoVideoUrl && !fullscreenLyrics && activeStyle === 'pop_sticker' && renderPopStickerStyle()}
         {!demoVideoUrl && !fullscreenLyrics && activeStyle === 'swiss_editorial' && renderSwissEditorialStyle()}
