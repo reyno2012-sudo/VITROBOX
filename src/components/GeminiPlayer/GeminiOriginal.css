@@ -1,0 +1,764 @@
+
+    .gemini-player {
+      --cavity-bg-1: #dce7eb;
+      --cavity-bg-2: #c4d4da;
+      --halo-tl: rgba(56, 189, 248, 0.72);
+      --halo-br: rgba(251, 146, 60, 0.62);
+      --text-ink: #1e242b;
+      --glass-Sheen: 0.48;
+      --bass-excursion: 0px;
+      --bass-scale: 1;
+      --bass-glow: 0.65;
+    }
+
+    .gemini-player * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* 室内背景墙面与环境氛围光 */
+    .gemini-player .room-backdrop {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 42%, var(--halo-tl) 0%, transparent 48%),
+        radial-gradient(circle at 62% 55%, var(--halo-br) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 25%, #2b2623 0%, #151210 60%, #090807 100%);
+      transition: background 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 0;
+    }
+
+    /* 墙面暗纹装饰框 */
+    .gemini-player .wall-decor {
+      position: absolute;
+      top: -6%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 440px;
+      height: 220px;
+      border: 10px solid #1c1815;
+      background: linear-gradient(135deg, #27221e 0%, #1b1714 100%);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.65), inset 0 0 30px rgba(0,0,0,0.7);
+      opacity: 0.45;
+      filter: blur(2px);
+      pointer-events: none;
+    }
+
+    /* 3D 视口舞台 */
+    .gemini-player .viewport-stage {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1900px;
+      z-index: 10;
+      cursor: grab;
+    }
+    .gemini-player .viewport-stage:active {
+      cursor: grabbing;
+    }
+
+    /* 3D 音箱 + 桌面总成容器 */
+    .gemini-player .scene-pivot {
+      position: relative;
+      width: 850px;
+      height: 503px;
+      transform-style: preserve-3d;
+      transition: transform 0.08s ease-out;
+    }
+
+    .gemini-player .scene-pivot.smooth-preset {
+      transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ==========================================
+       真实胡桃木桌面与背光漫反射 (Walnut Desk)
+       ========================================== */
+    .gemini-player .walnut-desk {
+      position: absolute;
+      width: 2200px;
+      height: 1500px;
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%, -50%, 0) translateY(260px) rotateX(90deg);
+      transform-style: preserve-3d;
+      background-color: #2c1b12;
+      background-image:
+        radial-gradient(ellipse 460px 95px at 50% 50%, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.75) 55%, transparent 85%),
+        radial-gradient(ellipse 440px 260px at 50% 54%, var(--cavity-bg-1) 0%, transparent 70%),
+        radial-gradient(circle 220px at 38% 55%, var(--halo-tl) 0%, transparent 75%),
+        radial-gradient(circle 220px at 62% 55%, var(--halo-br) 0%, transparent 75%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 2px, transparent 2px, transparent 9px),
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0px, rgba(35,20,12,0.35) 18px, rgba(15,8,4,0.3) 36px),
+        linear-gradient(180deg, #1a0f0a 0%, #382318 35%, #4a2e20 65%, #24150e 100%);
+      background-blend-mode: normal, soft-light, screen, screen, overlay, multiply, normal;
+      box-shadow: inset 0 0 180px rgba(0,0,0,0.95);
+      pointer-events: none;
+    }
+
+    /* 桌面上的真实倒影层 */
+    .gemini-player .desk-reflection-glow {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 840px;
+      height: 220px;
+      transform: translate(-50%, -10%);
+      background: linear-gradient(to bottom, var(--cavity-bg-1), transparent 80%);
+      opacity: 0.24;
+      filter: blur(26px);
+    }
+
+    /* ==========================================
+       音箱 6 面外框与 4 面内壁 (505.4 : 299.2 : 77.3)
+       850px × 503px × 130px
+       ========================================== */
+    .gemini-player .chassis-face {
+      position: absolute;
+      transform-style: preserve-3d;
+      backface-visibility: visible;
+    }
+
+    /* 外部顶部面板 */
+    .gemini-player .chassis-top {
+      width: calc(100% - 30px);
+      height: 130px;
+      left: 15px;
+      top: calc(251.5px - 65px);
+      transform: rotateX(90deg) translateZ(251.5px);
+      background: linear-gradient(90deg, #1b1c1f 0%, #2b2d31 50%, #18191c 100%);
+      border-radius: 0;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 2px 12px rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+
+    /* 外部底部面板 */
+    .gemini-player .chassis-bottom {
+      width: calc(100% - 30px);
+      height: 130px;
+      left: 15px;
+      top: calc(251.5px - 65px);
+      transform: rotateX(-90deg) translateZ(251.5px);
+      background: #0d0e10;
+      border-radius: 0;
+      box-shadow: 0 0 65px rgba(0,0,0,0.95);
+    }
+
+    /* 外部左侧面板 */
+    .gemini-player .chassis-left {
+      width: 130px;
+      height: calc(100% - 30px);
+      left: calc(425px - 65px);
+      top: 15px;
+      transform: rotateY(-90deg) translateZ(425px);
+      background: linear-gradient(180deg, #25272b 0%, #17181b 50%, #101113 100%);
+      border-radius: 0;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* 外部右侧面板（带旋钮、内六角螺丝与竖向 VITROBOX 铭文） */
+    .gemini-player .chassis-right {
+      width: 130px;
+      height: calc(100% - 30px);
+      left: calc(425px - 65px);
+      top: 15px;
+      transform: rotateY(90deg) translateZ(425px);
+      background: linear-gradient(180deg, #282a2f 0%, #1b1d21 55%, #121316 100%);
+      border-radius: 0;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 26px 0;
+      box-shadow: inset 0 0 25px rgba(0,0,0,0.6);
+    }
+
+    /* 12px sections reinforce the corners without intersecting the inner walls. */
+    .gemini-player .chassis-solid-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 32px solid #16181b;
+      border-radius: 16px;
+      background: transparent;
+      transform: translateZ(var(--chassis-layer-z));
+      mask:
+        linear-gradient(#000 0 0) top left / 17px 17px no-repeat,
+        linear-gradient(#000 0 0) top right / 17px 17px no-repeat,
+        linear-gradient(#000 0 0) bottom left / 17px 17px no-repeat,
+        linear-gradient(#000 0 0) bottom right / 17px 17px no-repeat;
+      backface-visibility: visible;
+      pointer-events: none;
+    }
+
+    /* Eight tangent faces close each quarter-cylinder for the full 130px depth. */
+    .gemini-player .chassis-corner {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      transform-style: preserve-3d;
+      pointer-events: none;
+    }
+    .gemini-player .chassis-corner-tl { top: 0; left: 0; --corner-start: 180deg; }
+    .gemini-player .chassis-corner-tr { top: 0; right: 0; --corner-start: 270deg; }
+    .gemini-player .chassis-corner-bl { bottom: 0; left: 0; --corner-start: 90deg; }
+    .gemini-player .chassis-corner-br { bottom: 0; right: 0; --corner-start: 0deg; }
+    .gemini-player .chassis-corner-facet {
+      position: absolute;
+      left: -49px;
+      top: 14.4px;
+      width: 130px;
+      height: 3.2px;
+      background: #16181b;
+      /* A 0.05px overlap keeps the section rims beneath the continuous skin. */
+      transform: rotateZ(calc(var(--corner-start) + var(--corner-step) + 5.625deg)) translateX(16.05px) rotateY(90deg);
+      backface-visibility: visible;
+    }
+
+    /* 侧面金属旋钮 (3D 凸起感) */
+    .gemini-player .side-rotary-knob {
+      position: relative;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: conic-gradient(from 45deg, #2b2d30, #757982, #1f2022, #8c9099, #2b2d30);
+      box-shadow:
+        0 6px 14px rgba(0,0,0,0.85),
+        0 0 0 3px #141517,
+        0 0 12px rgba(52, 211, 153, 0.45),
+        inset 0 2px 4px rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateZ(5px);
+      cursor: pointer;
+    }
+    .gemini-player .side-rotary-knob::after {
+      content: '';
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #3d4047, #17181b);
+      border: 1.5px solid rgba(52, 211, 153, 0.7);
+    }
+
+    /* 侧面竖向激光刻字 */
+    .gemini-player .side-engraving {
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 9px;
+      color: rgba(255,255,255,0.24);
+      text-shadow: -1px -1px 0px rgba(0,0,0,0.85), 1px 1px 0px rgba(255,255,255,0.08);
+    }
+
+    /* 4 个内壁面（形成真实的 11.5L 空气腔体厚度感，内框尺寸 786 × 439，深 124px） */
+    .gemini-player .cavity-inner-top {
+      position: absolute;
+      width: 786px;
+      height: 124px;
+      left: 32px;
+      top: calc(32px - 62px);
+      transform: rotateX(-90deg);
+      background: linear-gradient(to bottom, #0e1013 0%, #23282e 55%, var(--cavity-bg-1) 100%);
+      opacity: 0.96;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.75);
+    }
+
+    .gemini-player .cavity-inner-bottom {
+      position: absolute;
+      width: 786px;
+      height: 124px;
+      left: 32px;
+      top: calc(471px - 62px);
+      transform: rotateX(90deg);
+      background: linear-gradient(to top, #121417 0%, #282d33 45%, var(--cavity-bg-2) 100%);
+      opacity: 0.96;
+      box-shadow: inset 0 0 25px rgba(0,0,0,0.7);
+    }
+
+    .gemini-player .cavity-inner-left {
+      position: absolute;
+      width: 124px;
+      height: 439px;
+      left: calc(32px - 62px);
+      top: 32px;
+      transform: rotateY(90deg);
+      background: linear-gradient(to right, #101214 0%, #242930 50%, var(--cavity-bg-1) 100%);
+      opacity: 0.96;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.75);
+    }
+
+    .gemini-player .cavity-inner-right {
+      position: absolute;
+      width: 124px;
+      height: 439px;
+      left: calc(818px - 62px);
+      top: 32px;
+      transform: rotateY(-90deg);
+      background: linear-gradient(to left, #101214 0%, #242930 50%, var(--cavity-bg-1) 100%);
+      opacity: 0.96;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.75);
+    }
+
+    /* ==========================================
+       后方发光匀光背板 (Z = -60px)
+       ========================================== */
+    .gemini-player .rear-diffuser-plate {
+      position: absolute;
+      width: 786px;
+      height: 439px;
+      left: 32px;
+      top: 32px;
+      transform: translateZ(-60px);
+      background:
+        radial-gradient(circle 230px at 18% 36%, var(--halo-tl) 0%, transparent 72%),
+        radial-gradient(circle 210px at 80% 68%, var(--halo-br) 0%, transparent 72%),
+        radial-gradient(ellipse at 50% 48%, var(--cavity-bg-1) 0%, var(--cavity-bg-2) 68%, #9aaab2 100%);
+      box-shadow:
+        inset 0 0 48px rgba(0,0,0,0.38),
+        inset 0 0 12px rgba(0,0,0,0.55),
+        0 0 90px var(--halo-tl);
+      transition: background 0.9s ease;
+      overflow: hidden;
+    }
+
+    /* 匀光板内部细腻磨砂颗粒与环境暗角 */
+    .gemini-player .rear-diffuser-plate::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 50%, transparent 55%, rgba(10,14,18,0.28) 100%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(0,0,0,0.02) 1px, transparent 2px);
+      pointer-events: none;
+    }
+
+    /* 音箱外部背面金属盖板 (Z = -65px) */
+    .gemini-player .chassis-backplate {
+      position: absolute;
+      width: 850px;
+      height: 503px;
+      left: 0;
+      top: 0;
+      transform: translateZ(-65px) rotateY(180deg);
+      background: linear-gradient(135deg, #181a1d 0%, #0e0f11 100%);
+      border-radius: 16px;
+      border: 2px solid #26292e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ==========================================
+       中层：悬浮全息歌词与专辑 UI 层 (Z = -16px)
+       ========================================== */
+    .gemini-player .floating-ui-plane {
+      position: absolute;
+      width: 786px;
+      height: 439px;
+      left: 32px;
+      top: 32px;
+      transform: translateZ(-16px);
+      transform-style: preserve-3d;
+      pointer-events: auto;
+    }
+
+    /* 悬浮文字投射在后背板上的柔和物理阴影 */
+    .gemini-player .hologram-ink {
+      color: var(--text-ink);
+      text-shadow:
+        0 14px 24px rgba(15, 23, 42, 0.22),
+        0 3px 6px rgba(15, 23, 42, 0.12);
+    }
+
+    /* 真实金属彩虹光泽 CD 光盘 */
+    .gemini-player .iridescent-cd {
+      position: relative;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, transparent 0%, transparent 18%, #16181b 18.5%, #26292e 24%, rgba(255,255,255,0.35) 24.5%, transparent 25.5%),
+        conic-gradient(
+          from 0deg,
+          #d4d8dd 0deg,
+          #7b848f 30deg,
+          #f5d0fe 55deg,
+          #93c5fd 80deg,
+          #bbf7d0 105deg,
+          #fde68a 130deg,
+          #6b7280 155deg,
+          #d4d8dd 180deg,
+          #7b848f 210deg,
+          #f5d0fe 235deg,
+          #93c5fd 260deg,
+          #bbf7d0 285deg,
+          #fde68a 310deg,
+          #6b7280 335deg,
+          #d4d8dd 360deg
+        );
+      box-shadow:
+        0 18px 38px rgba(0,0,0,0.38),
+        inset 0 0 0 2px rgba(255,255,255,0.5),
+        inset 0 0 18px rgba(0,0,0,0.45);
+      -webkit-mask-image: radial-gradient(circle, transparent 0%, transparent 17%, black 17.5%, black 100%);
+      mask-image: radial-gradient(circle, transparent 0%, transparent 17%, black 17.5%, black 100%);
+    }
+
+    /* CD 同心音轨细纹 */
+    .gemini-player .iridescent-cd::before {
+      content: '';
+      position: absolute;
+      inset: 8%;
+      border-radius: 50%;
+      background: repeating-radial-gradient(
+        circle,
+        rgba(255,255,255,0.12) 0px,
+        rgba(255,255,255,0.12) 1px,
+        rgba(0,0,0,0.18) 2px,
+        transparent 4px
+      );
+      pointer-events: none;
+    }
+
+    @keyframes spinCD {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .gemini-player .cd-spinning {
+      animation: spinCD 14s linear infinite;
+    }
+    .gemini-player .cd-paused {
+      animation-play-state: paused;
+    }
+
+    /* ==========================================
+       前层：高透钢化玻璃与双非对称悬浮扬声器 (Z = +60px ~ +62px)
+       ========================================== */
+    .gemini-player .front-glass-plane {
+      position: absolute;
+      width: 786px;
+      height: 439px;
+      left: 32px;
+      top: 32px;
+      transform: translateZ(60px);
+      transform-style: preserve-3d;
+      pointer-events: none;
+      box-shadow:
+        inset 0 0 0 2px rgba(200, 240, 235, 0.16),
+        inset 0 0 28px rgba(0, 0, 0, 0.45);
+      background: linear-gradient(
+        125deg,
+        rgba(255, 255, 255, calc(var(--glass-Sheen) * 0.36)) 0%,
+        rgba(255, 255, 255, calc(var(--glass-Sheen) * 0.08)) 24%,
+        transparent 24.5%,
+        transparent 46%,
+        rgba(255, 255, 255, calc(var(--glass-Sheen) * 0.14)) 46.5%,
+        rgba(255, 255, 255, calc(var(--glass-Sheen) * 0.03)) 56%,
+        transparent 56.5%,
+        rgba(255, 255, 255, calc(var(--glass-Sheen) * 0.18)) 100%
+      );
+    }
+
+    /* 前方哑光黑金属主外框 (Z = +65px) */
+    .gemini-player .front-bezel-frame {
+      position: absolute;
+      width: 850px;
+      height: 503px;
+      left: 0;
+      top: 0;
+      transform: translateZ(65px);
+      pointer-events: none;
+      border-radius: 16px;
+      border: 32px solid #16181b;
+      box-shadow:
+        inset 0 0 0 2px #0b0c0e,
+        inset 0 2px 5px rgba(255,255,255,0.14),
+        0 0 0 1px rgba(255,255,255,0.1),
+        0 28px 60px rgba(0,0,0,0.65);
+      background: transparent;
+    }
+
+    .gemini-player .front-bezel-frame::before {
+      content: '';
+      position: absolute;
+      inset: -32px;
+      border-radius: 16px;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, transparent 35%, transparent 70%, rgba(255,255,255,0.03) 100%);
+      pointer-events: none;
+    }
+
+    /* ==========================================
+       真实三维双悬浮扬声器 (无缝鼓膜 + 中心完全镂空通透版)
+       ========================================== */
+    .gemini-player .woofer-unit {
+      position: absolute;
+      transform-style: preserve-3d;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    /* 左上扬声器位置 */
+    .gemini-player .woofer-tl {
+      width: 216px;
+      height: 216px;
+      left: 58px;
+      top: 72px;
+      transform: translateZ(62px);
+    }
+
+    /* 右下扬声器位置 */
+    .gemini-player .woofer-br {
+      width: 196px;
+      height: 196px;
+      right: 54px;
+      bottom: 38px;
+      transform: translateZ(62px);
+    }
+
+    /* 连接内壁的黑色磨砂横梁支架 */
+    .gemini-player .woofer-bridge-left {
+      position: absolute;
+      width: 38px;
+      height: 36px;
+      left: -28px;
+      top: 50%;
+      transform: translateY(-50%) translateZ(-4px);
+      background: linear-gradient(180deg, #24262b 0%, #141518 55%, #0a0b0d 100%);
+      border-top: 1px solid rgba(255,255,255,0.14);
+      border-bottom: 1px solid rgba(0,0,0,0.92);
+      box-shadow: -6px 12px 20px rgba(0,0,0,0.6);
+    }
+
+    .gemini-player .woofer-bridge-right {
+      position: absolute;
+      width: 36px;
+      height: 34px;
+      right: -26px;
+      top: 50%;
+      transform: translateY(-50%) translateZ(-4px);
+      background: linear-gradient(180deg, #24262b 0%, #141518 55%, #0a0b0d 100%);
+      border-top: 1px solid rgba(255,255,255,0.14);
+      border-bottom: 1px solid rgba(0,0,0,0.92);
+      box-shadow: 6px 12px 20px rgba(0,0,0,0.6);
+    }
+
+    /* 扬声器外围环形阴影 (严格掏空中心，确保孔内 0 遮挡) */
+    .gemini-player .woofer-drop-ring-shadow {
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+      transform: translateZ(-12px);
+      background: radial-gradient(
+        circle,
+        transparent 0%,
+        transparent 34%,
+        rgba(0, 0, 0, 0.72) 38%,
+        rgba(0, 0, 0, 0.48) 62%,
+        transparent 74%
+      );
+      pointer-events: none;
+    }
+
+    /* 第 1 层：一体式无缝黑色铸铝外圈 + 衔接底环 (从半径 38% 到 100% 全覆盖，彻底杜绝断层透明缝隙) */
+    .gemini-player .woofer-outer-chassis {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      transform: translateZ(3px);
+      background:
+        radial-gradient(
+          circle,
+          transparent 0%,
+          transparent 38%,
+          #08090b 38.5%,
+          #121417 52%,
+          #0c0d0f 68%,
+          #212429 71%,
+          #16181c 86%,
+          #202328 96%,
+          #0a0b0d 100%
+        );
+      -webkit-mask-image: radial-gradient(circle, transparent 0%, transparent 38%, black 38.5%, black 100%);
+      mask-image: radial-gradient(circle, transparent 0%, transparent 38%, black 38.5%, black 100%);
+      box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.2), 0 4px 12px rgba(0,0,0,0.65);
+    }
+
+    /* 第 2 层：无缝高弹性黑色橡胶折环鼓膜 */
+    .gemini-player .woofer-rubber-surround {
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      transform: translateZ(calc(4.5px + var(--bass-excursion))) scale(var(--bass-scale));
+      background:
+        radial-gradient(
+          circle,
+          transparent 0%,
+          transparent 48.5%,
+          #050607 49%,
+          #16181d 55%,
+          #353941 68%,
+          #454a54 74%,
+          #25282e 85%,
+          #090a0c 95%,
+          #16181c 100%
+        );
+      -webkit-mask-image: radial-gradient(circle, transparent 0%, transparent 48.5%, black 49%, black 100%);
+      mask-image: radial-gradient(circle, transparent 0%, transparent 48.5%, black 49%, black 100%);
+      box-shadow: 0 0 0 3px #090a0c;
+      transition: transform 0.03s linear;
+    }
+
+    .gemini-player .woofer-rubber-surround::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 310deg,
+        rgba(255,255,255,0.18) 0deg,
+        transparent 75deg,
+        rgba(0,0,0,0.6) 155deg,
+        rgba(255,255,255,0.09) 235deg,
+        transparent 305deg,
+        rgba(255,255,255,0.18) 360deg
+      );
+      pointer-events: none;
+    }
+
+    /* 第 3 层：立体深腔抛光黑铬/亚克力圆筒内壁组 */
+    .gemini-player .woofer-tunnel-stack {
+      position: absolute;
+      inset: 28.5%;
+      border-radius: 50%;
+      transform-style: preserve-3d;
+      pointer-events: none;
+    }
+
+    .gemini-player .tunnel-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      -webkit-mask-image: radial-gradient(circle, transparent 0%, transparent 66%, black 67.5%, black 100%);
+      mask-image: radial-gradient(circle, transparent 0%, transparent 66%, black 67.5%, black 100%);
+      background: conic-gradient(
+        from 200deg,
+        #090a0c 0deg,
+        #252a32 35deg,
+        rgba(255, 255, 255, 0.72) 62deg,
+        #323842 88deg,
+        #07080a 145deg,
+        #1a1e24 205deg,
+        rgba(255, 255, 255, 0.45) 245deg,
+        #14171b 295deg,
+        #090a0c 360deg
+      );
+    }
+
+    /* 6 层纵深推进的镜面金属/烟熏亚克力内筒壁 */
+    .gemini-player .tunnel-ring.depth-1 { transform: translateZ(calc(4px + var(--bass-excursion) * 0.85)); filter: brightness(1.02); }
+    .gemini-player .tunnel-ring.depth-2 { transform: translateZ(1px) scale(0.985); filter: brightness(0.92); }
+    .gemini-player .tunnel-ring.depth-3 { transform: translateZ(-3px) scale(0.97); filter: brightness(0.82); }
+    .gemini-player .tunnel-ring.depth-4 { transform: translateZ(-7px) scale(0.955); filter: brightness(0.75); }
+    .gemini-player .tunnel-ring.depth-5 { transform: translateZ(-11px) scale(0.94); filter: brightness(0.68); }
+    .gemini-player .tunnel-ring.depth-6 {
+      transform: translateZ(-15px) scale(0.925);
+      background: conic-gradient(
+        from 140deg,
+        rgba(255,255,255,0.85) 0deg,
+        rgba(120,140,160,0.4) 90deg,
+        rgba(255,255,255,0.9) 180deg,
+        rgba(80,90,105,0.4) 270deg,
+        rgba(255,255,255,0.85) 360deg
+      );
+      -webkit-mask-image: radial-gradient(circle, transparent 0%, transparent 74%, black 75.5%, black 88%, transparent 89%);
+      mask-image: radial-gradient(circle, transparent 0%, transparent 74%, black 75.5%, black 88%, transparent 89%);
+    }
+
+    /* 第 4 层：中心完全通透光学孔径 */
+    .gemini-player .woofer-clear-aperture {
+      position: absolute;
+      inset: 35.5%;
+      border-radius: 50%;
+      transform: translateZ(calc(2px + var(--bass-excursion) * 0.9));
+      background: transparent;
+      border: 1.5px solid rgba(255, 255, 255, 0.36);
+      box-shadow:
+        inset 3px 4px 8px rgba(255, 255, 255, 0.22),
+        inset -2px -3px 7px rgba(0, 0, 0, 0.55);
+      pointer-events: none;
+    }
+
+    /* 扬声器声波涟漪动画 */
+    .gemini-player .acoustic-ripple {
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.55);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateZ(14px) scale(0.85);
+    }
+
+    /* 跑马灯穿孔流动动画 */
+    @keyframes passThroughMarquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .gemini-player .aperture-marquee-track {
+      display: flex;
+      width: max-content;
+      animation: passThroughMarquee 18s linear infinite;
+    }
+
+    @keyframes floatAuraOrb {
+      0%, 100% { transform: translate(0px, 0px) scale(1); }
+      50% { transform: translate(14px, -10px) scale(1.08); }
+    }
+    .gemini-player .aura-orb-float {
+      animation: floatAuraOrb 6s ease-in-out infinite;
+    }
+
+    /* 底部与顶部悬浮毛玻璃控制栏 */
+    .gemini-player .glass-panel {
+      background: rgba(18, 20, 24, 0.76);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    }
+
+    .gemini-player .kinetic-lyric-line {
+      transition: all 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* 自定义滑块样式 */
+    .gemini-player input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255,255,255,0.15);
+      height: 5px;
+      border-radius: 999px;
+      outline: none;
+    }
+    .gemini-player input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }

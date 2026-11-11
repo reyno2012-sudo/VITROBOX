@@ -5,6 +5,7 @@ interface OuterGlassPaneProps {
   parallax: { x: number; y: number };
   theme: LightingTheme;
   bassIntensity?: number;
+  sheen?: number;
 }
 
 /**
@@ -18,6 +19,7 @@ export const OuterGlassPane: React.FC<OuterGlassPaneProps> = ({
   parallax,
   theme,
   bassIntensity = 0,
+  sheen = 0.48,
 }) => {
   return (
     <div
@@ -25,6 +27,7 @@ export const OuterGlassPane: React.FC<OuterGlassPaneProps> = ({
       style={{
         transform: 'translateZ(68px)',
         transformStyle: 'preserve-3d',
+        opacity: sheen,
       }}
     >
       {/* 1. Requested Optical Tempered Glass Sheen Layer */}
@@ -32,7 +35,7 @@ export const OuterGlassPane: React.FC<OuterGlassPaneProps> = ({
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 40%, rgba(255, 255, 255, 0.03) 100%)',
+            'linear-gradient(125deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,.04) 24%, transparent 24.5% 46%, rgba(255,255,255,.10) 46.5%, transparent 57%, rgba(255,255,255,.12) 100%)',
         }}
       />
 

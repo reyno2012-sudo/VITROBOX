@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./components/BrandNameplate.css";
 
 /* Shared hardware finishes for the cabinet and recessed metallic bevels. */
 .speaker-material-frame,
@@ -44,13 +45,13 @@
   box-shadow: inset 0 1px var(--frame-edge), 0 1px 2px #0003;
 }
 .console-mini-control:focus-visible { outline: 2px solid #147ca6; outline-offset: 3px; }
-.player-shell { transition: background-color .35s ease, background-image .35s ease; }
+body {
+  background-color: var(--player-page-background, #0b0c10);
+  transition: background-color .35s ease;
+}
 
 /* Tactile, ivory instrument controls */
 .console-header { background: linear-gradient(#f2f1ed, #d9d8d2) !important; border-color: #92938e !important; box-shadow: 0 5px 18px #0008, inset 0 1px #fff; color: #303331; gap: 1rem; }
-.console-header > div:first-child span { color: #262c2b !important; }
-.console-header .vitrobox-brand > span:first-child { color: #a87818 !important; text-shadow: 0 1px #fff5ca; }
-.console-header .vitrobox-brand > span:last-child { color: #151916 !important; }
 .console-header nav { gap: 2px; padding: 3px; border: 1px solid #8e918c; border-radius: 6px; background: #aeb0aa; box-shadow: inset 0 1px 3px #0004; }
 .console-header button, .console-deck button { color: #383d3c !important; border: 1px solid #a7aaa5 !important; background: linear-gradient(145deg, #faf9f3, #dbdbd4 68%, #c4c6bf) !important; box-shadow: inset 0 1px 1px #fff, 0 2px 3px #0003 !important; transition: transform .14s, box-shadow .14s, filter .14s !important; }
 .console-header nav button { min-height: 36px; padding: 0 10px; border-radius: 3px; font-size: 11px; }

@@ -1,7 +1,9 @@
 import { Track } from '../types';
 import { DEMO_VIDEO } from './demoVideo';
+import { BAD_GUY_TRACK } from './badGuy';
 
 export const PRESET_TRACKS: Track[] = [
+  BAD_GUY_TRACK,
   {
     id: 'weeknd-hongkong',
     title: '【HONGKONG】',

@@ -1,18 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { DisplayMode, LightingTheme, Track, AudioAnalysis, TypographyStyle } from './types';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { DisplayMode, LightingTheme, Track, AudioAnalysis, TypographyStyle, LyricLine } from './types';
 import { PRESET_TRACKS } from './constants/presets';
 import { FRAME_MATERIALS } from './constants/frameMaterials';
 import { DEMO_VIDEO } from './constants/demoVideo';
 import { globalAudioEngine } from './utils/audioEngine';
-import { VitroboxSpeaker } from './components/VitroboxSpeaker/VitroboxSpeaker';
+import { GeminiPlayer } from './components/GeminiPlayer/GeminiPlayer';
+import { HalofluxLoader } from './components/HalofluxLoader/HalofluxLoader';
 import { BottomControlDock } from './components/PlayerControls/BottomControlDock';
 import { UploadModal } from './components/UploadModal';
 import { SpotifyConnectModal } from './components/Spotify/SpotifyConnectModal';
 import { LyricsCorrectionModal } from './components/LyricsCorrectionModal';
 import { useSpotifySync } from './hooks/useSpotifySync';
 import { parseLrc } from './utils/lrcParser';
-import { Sparkles, Music2, Maximize2, Minimize2, FilePenLine, Mail } from 'lucide-react';
+import { Maximize2, Minimize2, Mail } from 'lucide-react';
 import { ContactModal } from './components/ContactModal';
+import { VisualConsole } from './components/VisualConsole/VisualConsole';
+import { defaultParticleSettings, type ParticleSettings } from './visuals/particleSettings';
 
 const PLAYER_BACKGROUNDS = [
   { name: '石墨灰', color: '#090c0f', glow: 'rgba(72, 83, 92, .16)' },
@@ -27,9 +30,11 @@ export default function App() {
   const [tracks, setTracks] = useState<Track[]>(PRESET_TRACKS);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isHaloLoaderVisible, setIsHaloLoaderVisible] = useState(true);
+  const [entryPulse, setEntryPulse] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(PRESET_TRACKS[0].duration);
-  const [volume, setVolume] = useState(0.85);
+  const [volume, setVolume] = useState(0.5);
   const [mode, setMode] = useState<DisplayMode>('aquarium');
   const [typographyStyle, setTypographyStyle] = useState<TypographyStyle>('pop_sticker');
   const [theme, setTheme] = useState<LightingTheme>('warm_amber');
@@ -40,15 +45,28 @@ export default function App() {
   const [isSpotifyModalOpen, setIsSpotifyModalOpen] = useState(false);
   const [isLyricsCorrectionOpen, setIsLyricsCorrectionOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
-  const [showGuideTip, setShowGuideTip] = useState(true);
   const [backgroundIndex, setBackgroundIndex] = useState(5);
   const [frameMaterialIndex, setFrameMaterialIndex] = useState(0);
+  const [isVisualConsoleOpen, setIsVisualConsoleOpen] = useState(false);
+  const [particleSettings, setParticleSettings] = useState(defaultParticleSettings);
+  const [demoLyrics, setDemoLyrics] = useState<{ trackId: string; lines: string[] } | null>(null);
+  const [customCovers, setCustomCovers] = useState<Record<string, string>>({});
+
+  const pageBackground = PLAYER_BACKGROUNDS[backgroundIndex];
+  useLayoutEffect(() => {
+    const { style } = document.body;
+    style.setProperty('--player-page-background', pageBackground.color);
+    return () => {
+      style.removeProperty('--player-page-background');
+    };
+  }, [pageBackground.color]);
 
   // Spotify integration hook
   const spotify = useSpotifySync();
 
   const handleModeChange = (newMode: DisplayMode) => {
     setMode(newMode);
+    setParticleSettings(previous => ({ ...previous, displayMode: newMode === 'minimalist' ? 'ambient' : 'particles' }));
     if (newMode === 'graphic_poster') setTypographyStyle('pop_sticker');
     else if (newMode === 'minimalist') setTypographyStyle('swiss_editorial');
     else setTypographyStyle('floating_mist');
@@ -70,6 +88,28 @@ export default function App() {
   const activeIsPlaying = isUsingSpotify ? spotify.playbackState.isPlaying : isPlaying;
   const activeCurrentTime = isUsingSpotify ? spotify.playbackState.currentTime : currentTime;
   const activeDuration = isUsingSpotify ? spotify.playbackState.duration : duration;
+  const currentDemo = demoLyrics?.trackId === activeTrack.id ? demoLyrics.lines : null;
+  const stageLyrics = React.useMemo<LyricLine[]>(() => currentDemo
+    ? currentDemo.map((text, index) => ({
+        id: `visual-demo-${index}`,
+        time: index * (Math.max(activeDuration, currentDemo.length) / currentDemo.length),
+        text,
+      }))
+    : activeTrack.lyrics, [currentDemo, activeDuration, activeTrack.lyrics]);
+  const changeVisuals = (patch: Partial<ParticleSettings>) => {
+    setParticleSettings(previous => ({ ...previous, ...patch }));
+    if (patch.displayMode !== undefined) setMode(patch.displayMode === 'ambient' ? 'minimalist' : 'aquarium');
+    else if (patch.preset !== undefined) setMode('aquarium');
+  };
+  const handleAuraChange = (nextTheme: LightingTheme) => {
+    setTheme(nextTheme);
+    const palettes: Record<LightingTheme, [number, number]> = {
+      pure_white: [0, 0], warm_amber: [1, 0], cyber_blue: [2, 0],
+      twilight_orchid: [2, 48], emerald_aurora: [0, -42], midnight: [0, 0], rose: [1, 85],
+    };
+    const [palette, hue] = palettes[nextTheme];
+    changeVisuals({ palette, hue });
+  };
 
   const animFrameRef = useRef<number | null>(null);
   const demoVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -114,6 +154,7 @@ export default function App() {
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isHaloLoaderVisible) return;
       if (e.key === 'f' || e.key === 'F') {
         if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
         toggleFullscreen();
@@ -132,7 +173,7 @@ export default function App() {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isFullscreen]);
+  }, [isFullscreen, isHaloLoaderVisible]);
 
   // Real-time audio analysis loop (powers driver vibration & water ripples)
   useEffect(() => {
@@ -150,6 +191,7 @@ export default function App() {
 
   // Toggle 16:9 Fullscreen desktop fill
   const toggleFullscreen = async () => {
+    setIsVisualConsoleOpen(false);
     try {
       if (!document.fullscreenElement && !isFullscreen) {
         if (document.documentElement.requestFullscreen) {
@@ -302,45 +344,56 @@ export default function App() {
       };
 
       handleSelectTrack(customTrack);
-      setShowGuideTip(false);
+    }
+  };
+
+  const handleHaloEnter = () => {
+    // Stay inside the trusted click for AudioContext.resume() and media.play().
+    globalAudioEngine.playBassPulse();
+    setEntryPulse(previous => previous + 1);
+    if (isUsingSpotify) {
+      if (!spotify.playbackState.isPlaying) spotify.handleRemotePlay();
+    } else if (isDemoVideo) {
+      const video = demoVideoRef.current;
+      if (video) {
+        video.volume = volume;
+        void video.play().catch(() => setIsPlaying(false));
+      }
+    } else {
+      globalAudioEngine.play();
     }
   };
 
   return (
     <div
+      inert={isHaloLoaderVisible}
+      aria-hidden={isHaloLoaderVisible || undefined}
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleWindowDrop}
-      className="player-shell relative w-screen h-screen overflow-hidden flex flex-col justify-between text-neutral-200 select-none"
-      style={{ backgroundColor: PLAYER_BACKGROUNDS[backgroundIndex].color, backgroundImage: `radial-gradient(circle at 50% 18%, ${PLAYER_BACKGROUNDS[backgroundIndex].glow}, transparent 46%)` }}
+      className={`player-shell gemini-layout relative w-screen flex flex-col text-neutral-200 select-none ${isVisualConsoleOpen ? 'is-visual-open' : ''} ${isFullscreen ? 'is-preview-fullscreen' : ''}`}
+      style={{ backgroundColor: pageBackground.color }}
     >
+      <HalofluxLoader onEnter={handleHaloEnter} onVisibilityChange={setIsHaloLoaderVisible} />
       {/* ---------------- 1. TOP BAR CONTRACT ---------------- */}
       {!isFullscreen && (
         <header className="console-header flex items-center justify-between gap-8 px-6 md:px-10 py-3.5 border-b border-[#1f242d] bg-[#0e1014]/90 backdrop-blur-md z-30 shrink-0">
-          {/* Zone 1: Brand Wordmark */}
-          <div className="vitrobox-brand flex items-baseline gap-3 md:gap-4 whitespace-nowrap shrink-0">
-            <span className="text-[18px] md:text-[26px] leading-tight font-bold font-mono tracking-[0.2em]">
-              VITROBOX
-            </span>
-            <span className="text-[11px] md:text-[14px] font-mono tracking-[0.12em]">Reyno LAB</span>
+          {/* Brushed-metal identity plate */}
+          <div className="vb-metal-nameplate" role="img" aria-label="VITROBOX — Reyno LAB">
+            <span className="vb-plate-rivet tl" aria-hidden="true" />
+            <span className="vb-plate-rivet tr" aria-hidden="true" />
+            <span className="vb-plate-rivet bl" aria-hidden="true" />
+            <span className="vb-plate-rivet br" aria-hidden="true" />
+            <div className="vb-emblem-disc" aria-hidden="true" />
+            <span className="vb-embossed-wordmark">VITROBOX</span>
+            <span className="vb-etched-groove" aria-hidden="true" />
+            <div className="vb-sunken-lab-tag">
+              <span className="vb-lab-led" aria-hidden="true" />
+              <span>Reyno LAB</span>
+            </div>
           </div>
 
           {/* Primary actions */}
           <div className="console-actions flex items-center gap-3 shrink-0">
-            <button
-              onClick={() => setIsLyricsCorrectionOpen(true)}
-              className="console-primary flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap"
-              title="搜索、上传或校对当前歌曲的歌词"
-            >
-              <FilePenLine className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">歌词修正</span>
-            </button>
-            <button
-              onClick={() => setIsUploadModalOpen(true)}
-              className="console-primary flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap"
-              title="载入音频"
-            >
-              <Music2 className="w-3.5 h-3.5" /><span className="hidden sm:inline">载入音频</span>
-            </button>
             {/* Spotify Connect Button */}
             <button
               onClick={() => setIsSpotifyModalOpen(true)}
@@ -395,59 +448,13 @@ export default function App() {
 
       {/* ---------------- 2. MAIN 16:9 VIEWPORT CONTAINER ---------------- */}
       <main className="relative flex-1 w-full overflow-hidden flex items-center justify-center">
-        {/* DESKTOP STUDIO BACKGROUND */}
-        {!isFullscreen && viewEnvironment === 'desktop' && (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {/* Top architectural wall light */}
-            <div
-              className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[350px] rounded-full blur-[120px] opacity-25"
-              style={{
-                background:
-                  'radial-gradient(circle, rgba(215, 235, 255, 0.6) 0%, transparent 70%)',
-              }}
-            />
-
-            {/* Desktop lower area: keep the active shell background continuous */}
-            <div
-              className="absolute bottom-0 inset-x-0 h-[38%]"
-              style={{
-                backgroundColor: 'transparent',
-                boxShadow: 'inset 0 10px 20px rgba(0,0,0,0.025)',
-              }}
-            >
-              <div
-                className="absolute inset-0 opacity-15"
-                style={{
-                  backgroundImage:
-                    'repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(255,255,255,0.02) 50px, rgba(255,255,255,0.02) 100px)',
-                }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* GUIDANCE TIP ON FIRST LOAD */}
-        {!isFullscreen && showGuideTip && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 px-4 py-1.5 bg-[#161a20]/90 backdrop-blur-md border border-[#2b3340] rounded-full text-xs text-[#b8c2ce] shadow-xl animate-in fade-in slide-in-from-top-4 duration-500">
-            <Sparkles className="w-4 h-4 text-[#38bdf8] shrink-0" />
-            <span>
-              支持一键<strong>连接 Spotify</strong> 同步曲库与歌词，或点击全屏 (F) 体验纯粹 16:9 悬浮视界。
-            </span>
-            <button
-              onClick={() => setShowGuideTip(false)}
-              className="text-[#7d8896] hover:text-white text-xs ml-1 cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-
         {/* ----------------- VITROBOX V1 SPEAKER SYSTEM (16:9 Ratio) ----------------- */}
-        <VitroboxSpeaker
+        <GeminiPlayer
+          entryPulse={entryPulse}
           mode={mode}
           onModeChange={handleModeChange}
           theme={theme}
-          onThemeChange={setTheme}
+          onThemeChange={handleAuraChange}
           volume={volume}
           onVolumeChange={handleVolumeChange}
           bassMultiplier={bassMultiplier}
@@ -455,18 +462,24 @@ export default function App() {
           isPlaying={activeIsPlaying}
           onTogglePlay={handleTogglePlay}
           currentTime={activeCurrentTime}
-          lyrics={activeTrack.lyrics}
+          lyrics={stageLyrics}
+          particleSettings={particleSettings}
+          onVisualSettingsChange={changeVisuals}
+          externalPlayback={isUsingSpotify}
           trackTitle={activeTrack.title}
           trackArtist={activeTrack.artist}
-          coverArt={activeTrack.coverArt}
+          coverArt={customCovers[activeTrack.id] || activeTrack.coverArt}
+          trackAlbum={activeTrack.album}
+          tracks={tracks}
+          onSelectTrack={handleSelectTrack}
           audioAnalysis={audioAnalysis}
           viewEnvironment={viewEnvironment}
           typographyStyle={typographyStyle}
           onTypographyStyleChange={setTypographyStyle}
           isFullscreen={isFullscreen}
           onToggleFullscreen={toggleFullscreen}
-          backgroundColor={PLAYER_BACKGROUNDS[backgroundIndex].color}
-          backgroundGlow={PLAYER_BACKGROUNDS[backgroundIndex].glow}
+          backgroundColor={pageBackground.color}
+          backgroundGlow={pageBackground.glow}
           frameMaterial={FRAME_MATERIALS[frameMaterialIndex]}
           demoVideoUrl={isDemoVideo ? DEMO_VIDEO.url : undefined}
           demoVideoRef={demoVideoRef}
@@ -490,17 +503,37 @@ export default function App() {
         onSeek={handleSeek}
         volume={volume}
         onVolumeChange={handleVolumeChange}
-        mode={mode}
-        onModeChange={handleModeChange}
         theme={theme}
-        onThemeChange={setTheme}
+        onThemeChange={handleAuraChange}
         typographyStyle={typographyStyle}
         onTypographyStyleChange={setTypographyStyle}
         isSpotifySyncActive={spotify.isSyncActive}
-        backgroundName={PLAYER_BACKGROUNDS[backgroundIndex].name}
+        backgroundName={pageBackground.name}
         frameMaterial={FRAME_MATERIALS[frameMaterialIndex]}
         onNextFrameMaterial={() => setFrameMaterialIndex((index) => (index + 1) % FRAME_MATERIALS.length)}
         onNextBackground={() => setBackgroundIndex((index) => (index + 1) % PLAYER_BACKGROUNDS.length)}
+        visualSettings={particleSettings}
+        onVisualSettingsChange={changeVisuals}
+        onOpenVisuals={() => setIsVisualConsoleOpen(true)}
+        onCloseVisuals={() => setIsVisualConsoleOpen(false)}
+        onOpenLyrics={() => setIsLyricsCorrectionOpen(true)}
+        onOpenAudio={() => setIsUploadModalOpen(true)}
+        bassMultiplier={bassMultiplier}
+        onBassMultiplierChange={setBassMultiplier}
+        onCoverChange={cover => setCustomCovers(previous => ({ ...previous, [activeTrack.id]: cover }))}
+        visualConsole={isVisualConsoleOpen && (
+          <VisualConsole
+            settings={particleSettings}
+            onSettingsChange={changeVisuals}
+            onClose={() => setIsVisualConsoleOpen(false)}
+            isPlaying={activeIsPlaying}
+            onTogglePlayback={handleTogglePlay}
+            trackTitle={activeTrack.title}
+            audioSource={isUsingSpotify ? 'Spotify' : isDemoVideo ? '视频曲目' : '本地音频'}
+            previewLyrics={currentDemo}
+            onPreviewLyrics={lines => setDemoLyrics(lines?.length ? { trackId: activeTrack.id, lines } : null)}
+          />
+        )}
       />
 
       {/* ---------------- 4. AUDIO & LRC UPLOAD / PRESET MODAL ---------------- */}
@@ -545,6 +578,7 @@ export default function App() {
         track={activeTrack}
         onClose={() => setIsLyricsCorrectionOpen(false)}
         onApply={(lyrics) => {
+          setDemoLyrics(null);
           if (isUsingSpotify) {
             spotify.replaceCurrentSpotifyLyrics(lyrics);
             return;

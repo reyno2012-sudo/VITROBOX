@@ -1,0 +1,90 @@
+.particle-lyric-stage {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.particle-lyric-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.particle-lyric-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 12%, #02040811 60%, #010205a8 100%),
+    linear-gradient(90deg, #03050799, transparent 35%, transparent 65%, #03050788),
+    linear-gradient(0deg, #040508ac, transparent 32%, transparent 68%, #03050966);
+}
+
+.particle-lyric-position {
+  position: absolute;
+  inset: 20% 27%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.particle-lyric-scene {
+  max-width: 100%;
+  font-size: calc(clamp(13px, 6.25cqw, 62px) * var(--lyric-size, 1));
+  line-height: 1.12;
+  text-shadow: 0 4px 24px #000, 0 0 5px #050609;
+}
+
+.particle-lyric-font-sans { font-family: Inter, 'Microsoft YaHei', system-ui, sans-serif; }
+.particle-lyric-font-serif { font-family: Georgia, 'Noto Serif SC', serif; }
+.particle-lyric-font-mono { font-family: ui-monospace, 'Microsoft YaHei', monospace; }
+
+.particle-lyric-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15em;
+}
+
+.particle-lyric-current,
+.particle-lyric-adjacent,
+.particle-lyric-translation {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.particle-lyric-adjacent { font-size: .46em; opacity: .46; font-weight: 600; }
+.particle-lyric-previous { opacity: .28; }
+.particle-lyric-translation { display: block; font-size: .42em; font-weight: 500; letter-spacing: .01em; margin-top: .65em; opacity: .74; }
+.particle-lyric-scene[data-layout="float"] .particle-lyric-lines { transform: rotate(-8deg); text-align: left; }
+.particle-lyric-scene[data-layout="float"] .particle-lyric-current { align-self: flex-start; }
+.particle-lyric-scene[data-layout="float"] .particle-lyric-next { align-self: flex-end; margin-inline-start: 12%; }
+.particle-lyric-scene[data-style="swiss_editorial"] { text-shadow: none; }
+.particle-lyric-scene[data-style="floating_mist"] .particle-lyric-current {
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: .025em currentColor;
+}
+
+.particle-lyric-plain { inset-block: 16%; justify-content: flex-start; overflow: auto; pointer-events: auto; }
+.particle-lyric-plain .particle-lyric-current { white-space: pre-wrap; text-wrap: wrap; }
+.particle-lyric-minimalist .particle-lyric-scene { text-shadow: none; }
+.particle-lyric-minimalist::before,
+.particle-lyric-minimalist::after {
+  position: absolute;
+  width: 1.3cqw;
+  height: 1.3cqw;
+  content: '';
+  opacity: .65;
+}
+.particle-lyric-minimalist::before { top: 0; left: 0; border-top: 1px solid currentColor; border-left: 1px solid currentColor; }
+.particle-lyric-minimalist::after { right: 0; bottom: 0; border-bottom: 1px solid currentColor; border-right: 1px solid currentColor; }
+.a2-idle.a2-idle--particle { color: #f5f7f6; text-shadow: 0 2px 12px #000a; }
+
+@container (max-width: 520px) {
+  .particle-lyric-position { inset: 16% 25%; }
+}

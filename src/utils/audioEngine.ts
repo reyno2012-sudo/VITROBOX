@@ -16,7 +16,7 @@ export class AudioEngine {
   private isPlaying = false;
   private currentTime = 0;
   private duration = 180;
-  private volume = 0.85;
+  private volume = 0.5;
   private animationFrameId: number | null = null;
   private lastUpdateTime = 0;
 
@@ -57,6 +57,27 @@ export class AudioEngine {
     return this.volume;
   }
 
+  public playBassPulse() {
+    this.initContext();
+    if (!this.ctx || !this.analyser) return;
+    const now = this.ctx.currentTime;
+    const oscillator = this.ctx.createOscillator();
+    const envelope = this.ctx.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(140, now);
+    oscillator.frequency.exponentialRampToValueAtTime(28, now + 0.45);
+    envelope.gain.setValueAtTime(0.3, now);
+    envelope.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    oscillator.connect(envelope);
+    envelope.connect(this.analyser);
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      envelope.disconnect();
+    };
+    oscillator.start(now);
+    oscillator.stop(now + 0.52);
+  }
+
   public setCallbacks(
     onTimeUpdate: (time: number, duration: number) => void,
     onStateChange: (isPlaying: boolean) => void
@@ -88,10 +109,9 @@ export class AudioEngine {
   }
 
   private loadUrlAudio(url: string, autoPlay: boolean) {
-    this.initContext();
+    // Preload media without creating/resuming Web Audio before a user gesture.
     if (!this.audioElement) {
       this.audioElement = new Audio();
-      this.audioElement.crossOrigin = 'anonymous';
       this.audioElement.preload = 'auto';
 
       this.audioElement.addEventListener('loadedmetadata', () => {
@@ -118,15 +138,9 @@ export class AudioEngine {
       });
     }
 
-    if (this.ctx && this.analyser && !this.mediaSource) {
-      try {
-        this.mediaSource = this.ctx.createMediaElementSource(this.audioElement);
-        this.mediaSource.connect(this.analyser);
-      } catch {
-        // Source already connected
-      }
-    }
-
+    // File previews load the bundled media directly from disk.
+    const isLocalPreviewMedia = window.location.protocol === 'file:' && !/^https?:/i.test(url);
+    this.audioElement.crossOrigin = isLocalPreviewMedia ? null : 'anonymous';
     this.audioElement.src = url;
     this.audioElement.volume = this.volume;
 
@@ -137,6 +151,10 @@ export class AudioEngine {
 
   public play() {
     this.initContext();
+    if (this.audioElement && this.ctx && this.analyser && !this.mediaSource) {
+      this.mediaSource = this.ctx.createMediaElementSource(this.audioElement);
+      this.mediaSource.connect(this.analyser);
+    }
     this.isPlaying = true;
     this.onStateChangeCallback?.(true);
     this.lastUpdateTime = performance.now();
@@ -383,7 +401,7 @@ export class AudioEngine {
       const now = performance.now() / 1000;
       const beatFreq = this.externalBpm / 60;
       const beatPhase = (now * beatFreq) % 1;
-      
+
       // Kick drum curve on downbeat
       const kick = Math.pow(Math.max(0, 1 - beatPhase * 3.5), 2);
       // Snare on 2 and 4

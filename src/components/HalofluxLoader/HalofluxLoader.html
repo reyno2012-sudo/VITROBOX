@@ -1,0 +1,170 @@
+<div id="halofluxLoader" class="haloflux-loader-overlay" role="dialog" aria-modal="true" aria-label="Haloflux × VITROBOX 声学实验室，点击进入播放器">
+
+    <!-- 顶部工业遥测指标栏 -->
+    <div class="halo-telemetry-header h-12 border-b border-white/15 bg-[#090a0c] px-5 flex items-center justify-between text-xs shrink-0 z-20">
+      <div class="flex items-center gap-6">
+        <div>
+          <div class="text-sm font-bold tracking-[0.18em] text-white flex items-center gap-2">
+            <span>VITROBOX CODE / REYNO LAB A2</span>
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+          <div class="text-[10px] text-white/45 tracking-widest">透明声学腔体 · 实时射线追踪与频谱实验室</div>
+        </div>
+      </div>
+
+      <!-- 顶部 5 组实时遥测指标 -->
+      <div class="hidden md:flex items-center gap-16 text-left font-mono">
+        <div>
+          <div class="text-[9px] text-white/40 uppercase">腔体容积 (L)</div>
+          <div class="text-sm font-bold text-white">11.5</div>
+        </div>
+        <div>
+          <div class="text-[9px] text-white/40 uppercase">声学通道</div>
+          <div class="text-sm font-bold text-white">12</div>
+        </div>
+        <div>
+          <div class="text-[9px] text-white/40 uppercase">分频阶数</div>
+          <div class="text-sm font-bold text-white">11</div>
+        </div>
+        <div>
+          <div class="text-[9px] text-white/40 uppercase">采样帧率</div>
+          <div class="text-sm font-bold text-white">60</div>
+        </div>
+        <div>
+          <div class="text-[9px] text-white/40 uppercase">预热曲目</div>
+          <div class="text-sm font-bold text-sky-400">03</div>
+        </div>
+      </div>
+
+      <!-- 右上角 CLICK TO ENTER 开关提示 -->
+      <div class="flex items-center gap-3">
+        <button type="button" aria-label="点击进入 VITROBOX 播放器" class="ignite-cta-pill px-3.5 py-1 rounded-full bg-white/10 border border-white/30 text-[11px] font-bold tracking-widest text-white flex items-center gap-2 hover:bg-sky-500/25 transition">
+          <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+          <span>CLICK TO ENTER PLAYER</span>
+        </button>
+        <div class="text-[10px] text-white/40 font-mono hidden sm:block">∇²p = (1/c²)∂²p/∂t²</div>
+      </div>
+    </div>
+
+    <!-- 中央主视觉 Canvas：左侧混沌射线与平行折线簇 + 居中巨型弧形转鼓 + 右侧超高速水平射流光束 -->
+    <div class="halo-stage relative flex-1 w-full overflow-hidden bg-[#08090b]">
+      <canvas id="halofluxStageCanvas" class="w-full h-full block"></canvas>
+
+      <!-- 跟随鼠标视差浮动的物理声学公式黑框 -->
+      <div id="floatingFormulaBox" class="absolute top-[34%] left-[64%] px-3 py-1.5 bg-black/90 border border-white/35 text-[11px] font-mono text-white tracking-widest pointer-events-none shadow-[0_0_25px_rgba(0,0,0,0.9)] transition-transform duration-75">
+        <span class="text-sky-400 mr-1.5">●</span>∇²p = (1/c²)∂²p/∂t² · <span id="formulaFreqReadout">384.0 kHz</span>
+      </div>
+
+      <!-- 底部居中极简点火提示条 -->
+      <div class="halo-ignite-hint absolute bottom-3 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full bg-black/85 border border-white/25 flex items-center gap-3 pointer-events-none shadow-[0_0_35px_rgba(0,0,0,0.95)] whitespace-nowrap">
+        <span class="px-1.5 py-0.5 text-[9px] font-bold bg-sky-400 text-black rounded-sm tracking-widest">IGNITE</span>
+        <span class="text-[11px] font-bold tracking-[0.22em] text-white/90">
+          MOVE MOUSE TO PAN DRUM · CLICK ANYWHERE TO ENTER 3D SPEAKER // 移动鼠标横移视界 · 点击任意处进入播放器
+        </span>
+      </div>
+    </div>
+
+    <!-- 底部 2×4 八宫格声学遥测控制台 -->
+    <div class="halo-telemetry-grid h-[250px] grid grid-cols-2 lg:grid-cols-4 grid-rows-2 bg-[#090a0c] text-[10px] font-mono shrink-0 z-20">
+
+      <!-- 格子 1：声学腔体自检日志 -->
+      <div class="lab-grid-cell flex flex-col justify-between">
+        <div class="text-white/60 font-bold tracking-wider mb-1 flex justify-between">
+          <span>声学腔体自检 / CAVITY LOG</span>
+          <span class="text-emerald-400">ONLINE</span>
+        </div>
+        <div class="space-y-0.5 text-[9.5px] leading-tight text-white/70 overflow-hidden">
+          <div><span class="text-white/35">139</span> <span class="text-emerald-400">PASS</span> 11.5L 独立低音空气腔体建模</div>
+          <div><span class="text-white/35">140</span> <span class="text-emerald-400">PASS</span> 左上/右下非对称镂空单元校准</div>
+          <div><span class="text-white/35">141</span> <span class="text-sky-400">SYNC</span> 6层黑铬镜面深腔内筒折射加载</div>
+          <div><span class="text-white/35">142</span> <span class="text-amber-300">WAIT</span> WebAudio 低频活塞冲程引擎就绪</div>
+          <div><span class="text-white/35">143</span> <span class="text-pink-400">EXEC</span> compare_reference_acoustics()</div>
+        </div>
+      </div>
+
+      <!-- 格子 2：空气粒子点阵监视器 -->
+      <div class="lab-grid-cell flex flex-col justify-between">
+        <div class="text-white/60 font-bold tracking-wider flex justify-between">
+          <span>腔体气流 / 粒子监视器</span>
+          <span class="text-white/35">505.4×299.2×77.3MM</span>
+        </div>
+        <canvas id="labMiniParticleCanvas" width="280" height="72" class="w-full h-[72px] my-1 bg-black/40 border border-white/5"></canvas>
+        <div class="flex justify-between text-[9px] text-white/40">
+          <span>湍流系数: 0.042</span>
+          <span class="bg-white text-black px-1.5 font-bold">初始化完成</span>
+        </div>
+      </div>
+
+      <!-- 格子 3：全息歌词引擎工作区 -->
+      <div class="lab-grid-cell flex flex-col justify-between">
+        <div class="text-white/60 font-bold tracking-wider flex justify-between">
+          <span>全息歌词引擎 / SHADER WORKSPACE</span>
+          <span class="text-sky-400">Z = -16px</span>
+        </div>
+        <div class="space-y-0.5 text-[9.5px] leading-tight text-white/65">
+          <div><span class="text-white/30">613</span> <span class="text-sky-300">mount_floating_lyric_plane</span>(z: -16)</div>
+          <div><span class="text-white/30">614</span> <span class="text-amber-200">bind_woofer_aperture_mask</span>(radius: 38%)</div>
+          <div><span class="text-white/30">615</span> track = <span class="text-emerald-300">load_vinyl</span>("Jay_Chou_2000.wav")</div>
+          <div><span class="text-white/30">616</span> excursion = <span class="text-pink-400">calc_bass_fft</span>(60Hz..140Hz)</div>
+          <div><span class="text-white/30">617</span> <span class="text-white font-bold">await_user_click_to_ignite()</span><span class="inline-block w-1.5 h-3 bg-sky-400 ml-1 animate-pulse"></span></div>
+        </div>
+      </div>
+
+      <!-- 格子 4：双喇叭声压场 -->
+      <div class="lab-grid-cell flex flex-col justify-between">
+        <div class="text-white/60 font-bold tracking-wider flex justify-between">
+          <span>双喇叭声压场 / SPL FIELD</span>
+          <span class="text-pink-400">92dB @ 1M</span>
+        </div>
+        <canvas id="labMiniFieldCanvas" width="280" height="78" class="w-full h-[78px] bg-black/50"></canvas>
+      </div>
+
+      <!-- 格子 5：全局材质光学折射参数表 -->
+      <div class="lab-grid-cell flex flex-col justify-between">
+        <div class="text-white/60 font-bold tracking-wider flex justify-between">
+          <span>全局 / 玻璃与金属材质组</span>
+          <span class="text-white/40">PBR READY</span>
+        </div>
+        <div class="grid grid-cols-4 gap-1 text-[9px] text-white/70 items-center my-auto">
+          <span>高透前玻璃</span><span class="bg-white/15 px-1 text-center">IOR 1.52</span><span class="text-emerald-400">正常</span><span class="bg-white/10 px-1 text-right">48%</span>
+          <span>无缝橡胶鼓膜</span><span class="bg-white/15 px-1 text-center">SHORE 45</span><span class="text-emerald-400">正常</span><span class="bg-white/10 px-1 text-right">100%</span>
+          <span>背光匀光板</span><span class="bg-white/15 px-1 text-center">DIFFUSE</span><span class="text-sky-400">流光</span><span class="bg-white/10 px-1 text-right">11.5L</span>
+        </div>
+      </div>
+
+      <!-- 格子 6：三路分频实时示波器 -->
+      <div class="lab-grid-cell flex flex-col justify-between">
+        <div class="text-white/60 font-bold tracking-wider flex justify-between">
+          <span>验证 / 三路分频冲程示波器</span>
+          <span class="text-sky-400">BASS / MID / RESIDUAL</span>
+        </div>
+        <canvas id="labMiniScopeCanvas" width="280" height="78" class="w-full h-[78px]"></canvas>
+      </div>
+
+      <!-- 格子 7：32点声学传感器状态 -->
+      <div class="lab-grid-cell flex flex-col justify-between">
+        <div class="text-white/60 font-bold tracking-wider flex justify-between">
+          <span>32点声学传感器 / SENSORS</span>
+          <span class="text-emerald-400">ALL LOCKED</span>
+        </div>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-1 my-auto text-[9px]">
+          <div class="flex items-center justify-between"><span>TL_SURROUND</span><span class="text-emerald-400">■■■■■ working</span></div>
+          <div class="flex items-center justify-between"><span>BR_SURROUND</span><span class="text-pink-400">■■■■□ working</span></div>
+          <div class="flex items-center justify-between"><span>CAVITY_AIR</span><span class="text-emerald-400">■■■■■ locked</span></div>
+          <div class="flex items-center justify-between"><span>LYRIC_PLANE</span><span class="text-pink-400">■■■■■ ready</span></div>
+          <div class="flex items-center justify-between"><span>CD_SPINDLE</span><span class="text-sky-400">■■■□□ standby</span></div>
+          <div class="flex items-center justify-between"><span>BASS_PULSE</span><span class="text-amber-300">■■■■■ armed</span></div>
+        </div>
+      </div>
+
+      <!-- 格子 8：FFT 谐波矩阵 -->
+      <div class="lab-grid-cell flex flex-col justify-between">
+        <div class="text-white/60 font-bold tracking-wider flex justify-between">
+          <span>谐波矩阵 / HARMONIC MATRIX</span>
+          <span class="text-pink-400">FFT 256</span>
+        </div>
+        <canvas id="labMiniMatrixCanvas" width="280" height="78" class="w-full h-[78px]"></canvas>
+      </div>
+
+    </div>
+  </div>

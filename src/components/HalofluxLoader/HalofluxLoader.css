@@ -1,0 +1,90 @@
+
+    /* =========================================================================
+       1. HALOFLUX × VITROBOX 独立声学实验室加载页样式 (可直接复制到项目全局 CSS)
+       ========================================================================= */
+    .haloflux-loader-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: #08090c;
+      color: #e5e7eb;
+      font-family: 'Space Grotesk', 'Inter', 'Noto Sans SC', monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      cursor: crosshair;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                  filter 0.85s ease;
+    }
+
+    /* 点击后坍缩进入主页面的过渡动画 */
+    .haloflux-loader-overlay.loader-collapsing {
+      opacity: 0;
+      transform: scale(1.12);
+      filter: brightness(2.2) contrast(1.4) blur(10px);
+      pointer-events: none;
+    }
+
+    /* 底部 2×4 八宫格遥测边框 */
+    #halofluxLoader .lab-grid-cell {
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      background: #090a0d;
+      padding: 8px 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes halofluxPulsePromptBar {
+      0%, 100% {
+        border-color: rgba(255, 255, 255, 0.28);
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.15);
+      }
+      50% {
+        border-color: rgba(56, 189, 248, 0.85);
+        box-shadow: 0 0 40px rgba(56, 189, 248, 0.45);
+      }
+    }
+
+    #halofluxLoader .ignite-cta-pill {
+      animation: halofluxPulsePromptBar 2.4s ease-in-out infinite;
+    }
+
+/* Isolate the source artwork from the player's hardware controls. */
+#halofluxLoader { touch-action: none; color-scheme: dark; }
+#halofluxLoader .halo-stage { min-height: 0; }
+#halofluxLoader .ignite-cta-pill { cursor: pointer; }
+#halofluxLoader .ignite-cta-pill:focus-visible { outline: 2px solid #38bdf8; outline-offset: 4px; }
+#halofluxLoader .halo-telemetry-grid { min-height: 0; }
+#halofluxLoader .lab-grid-cell canvas { min-height: 0; width: 100%; object-fit: fill; }
+@media (max-width: 1350px) {
+  #halofluxLoader .halo-telemetry-header > div:nth-child(2) { gap: 1.6rem; }
+  #halofluxLoader .halo-telemetry-header > div:last-child > div:last-child { display: none; }
+  #halofluxLoader .halo-ignite-hint { max-width: 96%; white-space: normal; text-align: center; }
+  #halofluxLoader .halo-ignite-hint > span:last-child { font-size: 9px; letter-spacing: .1em; }
+}
+@media (max-width: 1023px) {
+  #halofluxLoader .halo-telemetry-grid { height: min(44dvh, 350px); grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); }
+  #halofluxLoader .lab-grid-cell { padding: 5px 8px; }
+  #halofluxLoader .lab-grid-cell > div:first-child { font-size: 8px; letter-spacing: 0; }
+  #halofluxLoader .lab-grid-cell canvas { max-height: 52px; }
+}
+@media (max-width: 767px) {
+  #halofluxLoader .halo-telemetry-header { height: 72px; padding: 8px 12px; gap: 8px; }
+  #halofluxLoader .halo-telemetry-header > div:first-child .text-sm { font-size: 10px; letter-spacing: .08em; }
+  #halofluxLoader .halo-telemetry-header > div:first-child .text-\[10px\] { font-size: 8px; letter-spacing: 0; }
+  #halofluxLoader .ignite-cta-pill { max-width: 120px; padding: 7px 9px; font-size: 9px; line-height: 1.4; text-align: center; }
+  #halofluxLoader #floatingFormulaBox { left: 35%; max-width: 64%; padding: 5px; font-size: 8px; letter-spacing: 0; }
+  #halofluxLoader .halo-ignite-hint { padding: 6px 9px; gap: 7px; }
+  #halofluxLoader .halo-ignite-hint { width: calc(100% - 24px); }
+  #halofluxLoader .lab-grid-cell > div:not(:first-child) { font-size: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #halofluxLoader { transition-duration: .15s; }
+  #halofluxLoader .ignite-cta-pill, #halofluxLoader .animate-ping { animation: none; }
+  #halofluxLoader.loader-collapsing { transform: none; filter: none; }
+}

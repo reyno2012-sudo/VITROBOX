@@ -1,0 +1,171 @@
+.gemini-layout.player-shell {
+  height: 100dvh; min-height: 720px; overflow: visible;
+}
+body:has(.gemini-layout) { overflow-x: clip; overflow-y: auto; transition: none; }
+.gemini-layout.player-shell > main {
+  display: block; flex: 1 0 calc(100dvh - 390px);
+  min-height: 360px; padding: 0 !important; overflow: visible;
+}
+.gemini-layout > .hardware-dock {
+  position: relative; top: auto; bottom: auto; left: auto;
+  transform: none; margin: 24px auto 20px; flex-shrink: 0;
+}
+.gemini-layout > .hardware-dock.is-showing-visuals { position: relative; top: auto; bottom: auto; }
+.gemini-layout > .hardware-dock.is-collapsed { transform: none; }
+.gemini-layout > .hardware-dock.is-collapsed .gear-chassis { display: none; }
+.gemini-player {
+  position: relative; width: 100%; height: 100%; min-height: 360px;
+  overflow: visible; color: #f3f4f6;
+  font-family: Inter, 'Noto Sans SC', sans-serif;
+  background-color: var(--gemini-room-color, #e7dfd4);
+}
+.gemini-reset-view {
+  position: absolute; top: 14px; left: 50%; translate: -50% 0; z-index: 40;
+  display: grid; place-items: center; width: 38px; height: 38px; padding: 0;
+  color: #426457; border: 1px solid #999e92; border-radius: 10px;
+  background: radial-gradient(ellipse at 50% 25%, #d3d4c9, #e9e8dc 75%, #f6f3e8);
+  box-shadow: inset 0 1px 1px #fffef6, inset 0 -2px 2px #b9bcb0, 0 2px 0 #969c8e, 0 3px 4px #0003;
+  cursor: pointer; transition: filter .15s, box-shadow .15s;
+}
+.gemini-reset-view:hover { filter: brightness(1.06); }
+.gemini-reset-view:active { box-shadow: inset 0 2px 4px #686e6440, 0 1px 0 #969c8e; }
+.gemini-reset-view:focus-visible { outline: 2px solid #4c998c; outline-offset: 3px; }
+.gemini-scene-viewport {
+  position: absolute; inset: 78px 0 28px; display: flex;
+  align-items: center; justify-content: center; perspective: 1900px;
+  z-index: 10; touch-action: none; cursor: grab; outline-offset: -4px;
+}
+.gemini-scene-viewport:active { cursor: grabbing; }
+.gemini-scene-viewport:focus { outline: none; }
+.gemini-scene-viewport:focus-visible .front-bezel-frame { outline: 1px solid #61998c; outline-offset: 4px; }
+.gemini-cabinet-markup { display: contents; }
+.gemini-player .scene-pivot { flex-shrink: 0; }
+.gemini-player [data-media-mount] { position: absolute; inset: 0; container-type: inline-size; }
+.gemini-player .gemini-cavity-waves { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .9; }
+.gemini-player .gemini-track-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.gemini-player .gemini-track-video[hidden] { display: none; }
+.gemini-player[data-playing=false] .cd-spinning { animation-play-state: paused; }
+.gemini-player[data-screen=particles] #floatingUiPlane,
+.gemini-player.is-video #floatingUiPlane { visibility: hidden; pointer-events: none; }
+.gemini-player.is-video .front-glass-plane > * { display: none; }
+.gemini-player[data-screen=particles] .aura-orb-float > *,
+.gemini-player[data-screen=particles] .acoustic-ripple { display: none; }
+.gemini-player.is-video .rear-diffuser-plate > .aura-orb-float { display: none; }
+.gemini-player[data-screen=particles] .particle-lyric-scene { text-shadow: 0 1px 0 #ffffff55, 0 2px 8px #ffffff45; }
+.gemini-player[data-screen=particles] .a2-idle--particle { color: #263238; text-shadow: none; }
+.gemini-player[data-speakers=false] .woofer-unit { display: none; }
+.gemini-player #mode-view-brand { gap: 20px; padding: 28px 100px; }
+.gemini-player .brand-live-lyric {
+  width: 360px; max-width: 100%; margin: 0; padding: 6px 14px; border-radius: 14px;
+  background: rgba(255,255,255,.2); backdrop-filter: blur(6px);
+  font-size: calc(24px * var(--minimal-lyric-scale, 1.2)); font-weight: 600;
+  line-height: 1.35; letter-spacing: .025em; text-align: center;
+  white-space: normal; overflow-wrap: anywhere; text-wrap: balance; opacity: .95;
+}
+.gemini-player .brand-live-lyric:empty { display: none; }
+.gemini-player .album-artwork { width: 254px; height: 174px; flex-shrink: 0; }
+.gemini-player .album-disc { width: 164px; height: 164px; margin-left: -84px; flex-shrink: 0; }
+.gemini-player .album-sleeve { width: 174px; height: 174px; flex-shrink: 0; }
+.gemini-player .album-live-lyric {
+  position: absolute; top: 28px; left: 270px; right: 30px; margin: 0;
+  font-size: calc(22px * var(--mode-lyric-scale, 1.2)); font-weight: 750;
+  line-height: 1.25; text-align: right; color: #fff;
+  text-shadow: 0 2px 3px #182a36a6, 0 4px 12px #182a3670;
+  white-space: normal; overflow-wrap: anywhere; text-wrap: balance;
+}
+.gemini-player .gallery-live-lyric {
+  position: absolute; top: 324px; left: 178px; width: 350px; margin: 0;
+  font-size: calc(21px * var(--mode-lyric-scale, 1.2)); font-weight: 650;
+  line-height: 1.25; text-align: left; white-space: normal;
+  overflow-wrap: anywhere; text-wrap: balance;
+}
+.gemini-player .album-live-lyric:empty,
+.gemini-player .gallery-live-lyric:empty { display: none; }
+.gemini-player .gallery-track-info {
+  position: absolute; top: 27px; right: 22px; width: 184px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.gemini-player .gallery-track-info > div {
+  overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+.gemini-player .gallery-track-title { font-size: 17px; font-weight: 750; line-height: 1.2; }
+.gemini-player .gallery-track-artist { font-size: 12px; font-weight: 600; line-height: 1.3; opacity: .82; }
+.gemini-player .gallery-track-album { font-size: 10px; line-height: 1.4; opacity: .68; }
+.gemini-player .gallery-track-info > div:empty { display: none; }
+.gemini-player:not([data-frame-material=graphite]) {
+  --metal-sandblast: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath d='M0 0h160v160H0z' fill='%23fff' opacity='.065' filter='url(%23grain)'/%3E%3C/svg%3E");
+}
+.gemini-player:not([data-frame-material=graphite]) .chassis-face {
+  background-color: var(--metal-base);
+  background-image: var(--metal-sandblast), var(--metal-gradient-h);
+  background-size: 160px 160px, 100% 100%;
+  background-blend-mode: soft-light, normal;
+  border-color: var(--metal-cnc-chamfer);
+}
+.gemini-player:not([data-frame-material=graphite]) .chassis-left,
+.gemini-player:not([data-frame-material=graphite]) .chassis-right {
+  background-image: var(--metal-sandblast), var(--metal-gradient-v);
+}
+.gemini-player:not([data-frame-material=graphite]) .chassis-backplate {
+  background-image: var(--metal-sandblast), var(--metal-bezel-surface);
+}
+.gemini-player:not([data-frame-material=graphite]) .chassis-solid-layer { border-color: var(--metal-solid-layer); }
+.gemini-player:not([data-frame-material=graphite]) .chassis-corner-facet { background: var(--metal-solid-layer); }
+.gemini-player:not([data-frame-material=graphite]) .front-bezel-frame {
+  border-color: var(--metal-bezel-border);
+  box-shadow: inset 0 0 0 2px var(--metal-inner-shadow), inset 0 1px 2px var(--metal-cnc-chamfer),
+    0 0 0 1px var(--metal-cnc-chamfer), 0 28px 60px rgba(0,0,0,.65);
+}
+.gemini-player:not([data-frame-material=graphite]) .front-bezel-frame::before {
+  z-index: 1;
+  border-color: var(--metal-cnc-chamfer);
+  background: none;
+}
+/* Paint only the 32px rim: the glass and hollow speaker apertures stay clear. */
+.gemini-player:not([data-frame-material=graphite]) .front-bezel-frame::after {
+  content: '';
+  position: absolute;
+  inset: -32px;
+  padding: 32px;
+  border-radius: inherit;
+  background-color: var(--metal-base);
+  background-image: var(--metal-sandblast), var(--metal-bezel-surface);
+  background-size: 160px 160px, 100% 100%;
+  background-blend-mode: soft-light, normal;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.gemini-player:not([data-frame-material=graphite]) .cavity-inner-top {
+  background: linear-gradient(to bottom, var(--metal-solid-layer), var(--metal-base) 55%, var(--cavity-bg-1));
+}
+.gemini-player:not([data-frame-material=graphite]) .cavity-inner-bottom {
+  background: linear-gradient(to top, var(--metal-solid-layer), var(--metal-base) 45%, var(--cavity-bg-2));
+}
+.gemini-player:not([data-frame-material=graphite]) .cavity-inner-left {
+  background: linear-gradient(to right, var(--metal-solid-layer), var(--metal-base) 50%, var(--cavity-bg-1));
+}
+.gemini-player:not([data-frame-material=graphite]) .cavity-inner-right {
+  background: linear-gradient(to left, var(--metal-solid-layer), var(--metal-base) 50%, var(--cavity-bg-1));
+}
+.gemini-player:not([data-frame-material=graphite]) .side-rotary-knob {
+  background: conic-gradient(from 45deg, var(--metal-base), var(--metal-knob-core), var(--metal-cnc-chamfer), var(--metal-solid-layer), var(--metal-base));
+}
+.gemini-player:not([data-frame-material=graphite]) .side-rotary-knob::after {
+  background: radial-gradient(circle at 35% 35%, var(--metal-knob-core), var(--metal-solid-layer));
+}
+.gemini-exit-fullscreen { position: fixed; top: 16px; right: 16px; padding: 10px; z-index: 60; color: #fff; border-radius: 8px; cursor: pointer; }
+.gemini-player.is-fullscreen { position: fixed; inset: 0; z-index: 50; height: 100dvh; overflow: clip; }
+.gemini-player.is-fullscreen .gemini-scene-viewport { inset: 0; perspective: none; }
+.gemini-player.is-fullscreen .front-bezel-frame,
+.gemini-player.is-fullscreen .front-bezel-frame::before { border-radius: 0; }
+@media (max-width: 700px) {
+  .gemini-scene-viewport { inset-block-start: 96px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gemini-player .scene-pivot, .gemini-player .scene-pivot.smooth-preset { transition: none; }
+  .gemini-player .cd-spinning, .gemini-player .aperture-marquee-track, .gemini-player .aura-orb-float { animation: none; }
+}

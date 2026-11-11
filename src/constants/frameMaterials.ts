@@ -1,16 +1,77 @@
 import type { CSSProperties } from 'react';
 
-// Shared by the cabinet, recessed bevels and the control's material sample.
-export const FRAME_MATERIALS = [
-  { id: 'graphite', name: '石墨黑', base: '#202225', light: '#44494e', shade: '#111315', edge: '#616970', grain: '.07', brush: '.025', angle: '90deg' },
-  { id: 'steel', name: '拉丝不锈钢', base: '#a7afb3', light: '#f0f3f3', shade: '#535f66', edge: '#ecf3f5', grain: '.035', brush: '.16', angle: '0deg' },
-  { id: 'titanium', name: '原色钛', base: '#918d84', light: '#d4d0c5', shade: '#55534e', edge: '#e0dcd1', grain: '.1', brush: '.055', angle: '90deg' },
-  { id: 'aluminium', name: '喷砂铝', base: '#c4c8c9', light: '#e8ebea', shade: '#8c9498', edge: '#fafcfb', grain: '.16', brush: '.015', angle: '90deg' },
-  { id: 'champagne', name: '香槟金', base: '#b7a182', light: '#eee0c6', shade: '#75634c', edge: '#f3e5cb', grain: '.05', brush: '.09', angle: '0deg' },
-  { id: 'space', name: '深空钛', base: '#535d69', light: '#939eaa', shade: '#252d36', edge: '#b1bfca', grain: '.1', brush: '.065', angle: '90deg' },
-] as const;
+// User-supplied metal finishes. The existing graphite cabinet stays the default.
+export const APPLE_METALS = {
+  bronze: {
+    key: 'bronze', name: '暖日落铜钛',
+    previewGradient: 'linear-gradient(135deg, #fcd34d, #f97316, #78350f)',
+    base: '#6b432a',
+    gradientH: 'linear-gradient(90deg, #4f301d 0%, #875435 35%, #71462c 65%, #472b1a 100%)',
+    gradientV: 'linear-gradient(180deg, #4f301d 0%, #875435 45%, #472b1a 100%)',
+    bezelSurface: 'linear-gradient(135deg, #71462c 0%, #8c5737 35%, #5e3a24 70%, #4a2d1b 100%)',
+    bezelBorder: '#6b432a', cncChamfer: 'rgba(255, 218, 185, 0.65)',
+    innerShadow: 'rgba(20, 10, 5, 0.65)', solidLayer: '#653f27', knobCore: '#7a4c2e',
+  },
+  spaceblack: {
+    key: 'spaceblack', name: '深空黑 (CNC切边)',
+    previewGradient: 'linear-gradient(135deg, #45474c, #1c1d20, #0c0d0f)',
+    base: '#1a1b1d',
+    gradientH: 'linear-gradient(90deg, #121315 0%, #26272b 35%, #1d1e21 65%, #121315 100%)',
+    gradientV: 'linear-gradient(180deg, #131416 0%, #242528 45%, #101112 100%)',
+    bezelSurface: 'linear-gradient(135deg, #1e1f23 0%, #292a2e 35%, #161719 70%, #111213 100%)',
+    bezelBorder: '#1a1b1d', cncChamfer: 'rgba(255, 255, 255, 0.72)',
+    innerShadow: 'rgba(0, 0, 0, 0.8)', solidLayer: '#18191b', knobCore: '#26272a',
+  },
+  titanium: {
+    key: 'titanium', name: '原色钛金属',
+    previewGradient: 'linear-gradient(135deg, #c4beaf, #8c857b, #45423d)',
+    base: '#524e48',
+    gradientH: 'linear-gradient(90deg, #44403a 0%, #686259 35%, #565149 65%, #423e38 100%)',
+    gradientV: 'linear-gradient(180deg, #44403a 0%, #686259 45%, #3d3934 100%)',
+    bezelSurface: 'linear-gradient(135deg, #5b554c 0%, #666055 35%, #4a453d 70%, #3e3a33 100%)',
+    bezelBorder: '#524e48', cncChamfer: 'rgba(245, 240, 230, 0.45)',
+    innerShadow: 'rgba(0, 0, 0, 0.55)', solidLayer: '#4c4842', knobCore: '#5e584f',
+  },
+  plum: {
+    key: 'plum', name: '勃艮第紫钛',
+    previewGradient: 'linear-gradient(135deg, #d8b4fe, #7e22ce, #170d14)',
+    base: '#3b2631',
+    gradientH: 'linear-gradient(90deg, #2b1b24 0%, #4d3240 35%, #3d2733 65%, #25171f 100%)',
+    gradientV: 'linear-gradient(180deg, #2b1b24 0%, #4d3240 45%, #22141b 100%)',
+    bezelSurface: 'linear-gradient(135deg, #442c38 0%, #523545 35%, #33202a 70%, #261820 100%)',
+    bezelBorder: '#3b2631', cncChamfer: 'rgba(243, 214, 235, 0.55)',
+    innerShadow: 'rgba(12, 4, 8, 0.75)', solidLayer: '#36222c', knobCore: '#472c3b',
+  },
+} as const;
 
-export type FrameMaterial = typeof FRAME_MATERIALS[number];
+type ChassisMetal = typeof APPLE_METALS[keyof typeof APPLE_METALS];
+export interface FrameMaterial {
+  id: 'graphite' | ChassisMetal['key'];
+  name: string;
+  englishName: string;
+  base: string;
+  light: string;
+  shade: string;
+  edge: string;
+  grain: string;
+  brush: string;
+  angle: string;
+  metal?: ChassisMetal;
+}
+
+const METAL_LABELS = {
+  bronze: 'Sunset bronze', spaceblack: 'Space black (CNC)',
+  titanium: 'Natural titanium', plum: 'Burgundy titanium',
+};
+
+export const FRAME_MATERIALS: readonly FrameMaterial[] = [
+  { id: 'graphite', name: '石墨黑', englishName: 'Graphite', base: '#202225', light: '#44494e', shade: '#111315', edge: '#616970', grain: '.07', brush: '.025', angle: '90deg' },
+  ...Object.values(APPLE_METALS).map(metal => ({
+    id: metal.key, name: metal.name, englishName: METAL_LABELS[metal.key],
+    base: metal.base, light: metal.knobCore, shade: metal.solidLayer,
+    edge: metal.cncChamfer, grain: '.045', brush: '.008', angle: '90deg', metal,
+  })),
+];
 
 export function frameMaterialStyle(material: FrameMaterial): CSSProperties {
   return {
@@ -21,5 +82,17 @@ export function frameMaterialStyle(material: FrameMaterial): CSSProperties {
     '--frame-grain': material.grain,
     '--frame-brush': material.brush,
     '--frame-angle': material.angle,
+    // Scope to the cabinet, so changing FRAME cannot recolor the dock or loader.
+    ...(material.metal && {
+      '--metal-base': material.metal.base,
+      '--metal-gradient-h': material.metal.gradientH,
+      '--metal-gradient-v': material.metal.gradientV,
+      '--metal-bezel-surface': material.metal.bezelSurface,
+      '--metal-bezel-border': material.metal.bezelBorder,
+      '--metal-cnc-chamfer': material.metal.cncChamfer,
+      '--metal-inner-shadow': material.metal.innerShadow,
+      '--metal-solid-layer': material.metal.solidLayer,
+      '--metal-knob-core': material.metal.knobCore,
+    }),
   } as CSSProperties;
 }

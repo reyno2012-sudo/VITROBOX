@@ -30,6 +30,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   // Handle Drag & Drop of Audio & LRC files
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setDragOver(false);
     setErrorMsg('');
 
@@ -93,12 +94,14 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   };
 
   const handleConfirmCustom = () => {
-    if (!audioFile && !urlInput) {
+    const selectedFile = activeTab === 'file' ? audioFile : null;
+    const selectedUrl = activeTab === 'url' ? urlInput.trim() : '';
+    if (!selectedFile && !selectedUrl) {
       setErrorMsg('请选择本地音频文件或输入音频链接');
       return;
     }
 
-    const audioUrl = audioFile ? URL.createObjectURL(audioFile) : urlInput.trim();
+    const audioUrl = selectedFile ? URL.createObjectURL(selectedFile) : selectedUrl;
     let parsedLyrics = lrcText ? parseLrc(lrcText).lines : [];
 
     // Fallback poetic lyrics if no LRC provided
