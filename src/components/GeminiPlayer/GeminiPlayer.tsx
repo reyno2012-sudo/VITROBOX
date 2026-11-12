@@ -5,7 +5,6 @@ import { Minimize2, RotateCcw } from 'lucide-react';
 import type { VitroboxSpeakerProps } from '../VitroboxSpeaker/VitroboxSpeaker';
 import { ParticleLyricStage } from '../VitroboxSpeaker/ParticleLyricStage';
 import { cabinetViews, defaultParticleSettings } from '../../visuals/particleSettings';
-import { DEMO_VIDEO } from '../../constants/demoVideo';
 import { frameMaterialStyle } from '../../constants/frameMaterials';
 import { globalAudioEngine } from '../../utils/audioEngine';
 import { GeminiCavityWaves } from './GeminiCavityWaves';
@@ -30,8 +29,6 @@ export function GeminiPlayer(props: VitroboxSpeakerProps & { entryPulse?: number
     lyrics, audioAnalysis, theme, frameMaterial, isFullscreen = false,
     bassMultiplier, onTogglePlay, onToggleFullscreen,
     onSelectTrack,
-    demoVideoUrl, demoVideoRef, onVideoTimeUpdate, onVideoLoadedMetadata,
-    onVideoPlay, onVideoPause, onVideoEnded,
   } = props;
   const cabinet = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
@@ -148,11 +145,11 @@ export function GeminiPlayer(props: VitroboxSpeakerProps & { entryPulse?: number
   useLayoutEffect(() => {
     cabinet.current?.querySelectorAll<HTMLElement>('.mode-view').forEach(node => {
       const id = node.id.replace('mode-view-', '');
-      const visible = id === (screen === 'ambient' ? 'brand' : screen) && !demoVideoUrl;
+      const visible = id === (screen === 'ambient' ? 'brand' : screen);
       node.classList.toggle('hidden', !visible);
       node.classList.toggle('flex', visible && ['album', 'kinetic', 'brand'].includes(id));
     });
-  }, [screen, demoVideoUrl]);
+  }, [screen]);
   useEffect(() => {
     function updateClock() {
       const now = new Date();
@@ -234,7 +231,7 @@ export function GeminiPlayer(props: VitroboxSpeakerProps & { entryPulse?: number
   const introEnd = lyrics[0]?.time ?? Infinity;
   const introFade = Number.isFinite(introEnd) ? Math.max(0, Math.min(1, (currentTime - Math.max(0, introEnd - 2.5)) / Math.min(introEnd || 1, 2.5))) : 0;
 
-  return <section className={`gemini-player ${isFullscreen ? 'is-fullscreen' : ''} ${demoVideoUrl ? 'is-video' : ''}`}
+  return <section className={`gemini-player ${isFullscreen ? 'is-fullscreen' : ''}`}
     data-screen={screen} data-playing={isPlaying} data-speakers={settings.showSpeakers}
     data-frame-material={frameMaterial?.id ?? 'graphite'}
     style={{
@@ -276,12 +273,6 @@ export function GeminiPlayer(props: VitroboxSpeakerProps & { entryPulse?: number
     </div>
 
     {mediaMount && createPortal(<>
-      <video className="gemini-track-video" ref={demoVideoRef} src={demoVideoUrl || DEMO_VIDEO.url}
-        hidden={!demoVideoUrl} preload={demoVideoUrl ? 'metadata' : 'none'} playsInline
-        onTimeUpdate={onVideoTimeUpdate} onLoadedMetadata={onVideoLoadedMetadata}
-        onPlay={onVideoPlay} onPause={onVideoPause} onEnded={onVideoEnded}
-        aria-label="I'm Upping My P(doom) demonstration video" />
-      {!demoVideoUrl && <>
         <GeminiCavityWaves bass={bass} speed={settings.speed} intensity={settings.intensity} contrast={settings.contrast}
           showLines={screen !== 'particles'} />
         {screen === 'particles' && <>
@@ -292,7 +283,6 @@ export function GeminiPlayer(props: VitroboxSpeakerProps & { entryPulse?: number
           {coverArt && <img src={coverArt} alt={trackTitle} />}<strong>{trackTitle}</strong><small>{trackArtist}</small>
         </div>}
         </>}
-      </>}
     </>, mediaMount)}
 
     {isFullscreen && <button className="gemini-exit-fullscreen glass-panel" type="button"

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { DisplayMode, LightingTheme, Track, AudioAnalysis, TypographyStyle, LyricLine } from './types';
 import { PRESET_TRACKS } from './constants/presets';
 import { FRAME_MATERIALS } from './constants/frameMaterials';
-import { DEMO_VIDEO } from './constants/demoVideo';
 import { globalAudioEngine } from './utils/audioEngine';
 import { GeminiPlayer } from './components/GeminiPlayer/GeminiPlayer';
 import { HalofluxLoader } from './components/HalofluxLoader/HalofluxLoader';
@@ -112,14 +111,11 @@ export default function App() {
   };
 
   const animFrameRef = useRef<number | null>(null);
-  const demoVideoRef = useRef<HTMLVideoElement | null>(null);
-  const isDemoVideo = !spotify.isSyncActive && activeTrack.id === DEMO_VIDEO.id;
 
   // Pause local audio engine if Spotify becomes actively playing
   useEffect(() => {
     if (spotify.isSyncActive) {
       globalAudioEngine.pause();
-      demoVideoRef.current?.pause();
     }
   }, [spotify.isSyncActive]);
 
@@ -211,22 +207,9 @@ export default function App() {
 
   // Track switching
   const playLocalTrack = (track: Track) => {
-    demoVideoRef.current?.pause();
-    if (track.videoUrl) {
-      globalAudioEngine.stop();
-      setCurrentTime(0);
-      setDuration(demoVideoRef.current && Number.isFinite(demoVideoRef.current.duration) ? demoVideoRef.current.duration : track.duration);
-      const video = demoVideoRef.current;
-      if (video) {
-        video.currentTime = 0;
-        video.volume = volume;
-        void video.play().catch(() => setIsPlaying(false));
-      }
-    } else {
-      globalAudioEngine.loadTrack(track, true);
-      setCurrentTime(0);
-      setDuration(track.duration);
-    }
+    globalAudioEngine.loadTrack(track, true);
+    setCurrentTime(0);
+    setDuration(track.duration);
     setIsPlaying(true);
   };
 
@@ -273,13 +256,6 @@ export default function App() {
       return;
     }
 
-    if (isDemoVideo) {
-      const video = demoVideoRef.current;
-      if (isPlaying) video?.pause();
-      else void video?.play().catch(() => setIsPlaying(false));
-      return;
-    }
-
     if (isPlaying) {
       globalAudioEngine.pause();
     } else {
@@ -292,15 +268,13 @@ export default function App() {
       spotify.handleRemoteSeek(time);
       return;
     }
-    if (isDemoVideo && demoVideoRef.current) demoVideoRef.current.currentTime = time;
-    else globalAudioEngine.seek(time);
+    globalAudioEngine.seek(time);
     setCurrentTime(time);
   };
 
   const handleVolumeChange = (vol: number) => {
     setVolume(vol);
     globalAudioEngine.setVolume(vol);
-    if (demoVideoRef.current) demoVideoRef.current.volume = vol;
   };
 
   // Global Drag & Drop Support
@@ -353,12 +327,6 @@ export default function App() {
     setEntryPulse(previous => previous + 1);
     if (isUsingSpotify) {
       if (!spotify.playbackState.isPlaying) spotify.handleRemotePlay();
-    } else if (isDemoVideo) {
-      const video = demoVideoRef.current;
-      if (video) {
-        video.volume = volume;
-        void video.play().catch(() => setIsPlaying(false));
-      }
     } else {
       globalAudioEngine.play();
     }
@@ -497,13 +465,6 @@ export default function App() {
           backgroundColor={pageBackground.color}
           backgroundGlow={pageBackground.glow}
           frameMaterial={FRAME_MATERIALS[frameMaterialIndex]}
-          demoVideoUrl={isDemoVideo ? DEMO_VIDEO.url : undefined}
-          demoVideoRef={demoVideoRef}
-          onVideoTimeUpdate={event => { if (isDemoVideo) setCurrentTime(event.currentTarget.currentTime); }}
-          onVideoLoadedMetadata={event => { if (isDemoVideo) setDuration(event.currentTarget.duration); }}
-          onVideoPlay={() => { if (isDemoVideo) setIsPlaying(true); }}
-          onVideoPause={() => { if (isDemoVideo) setIsPlaying(false); }}
-          onVideoEnded={() => { if (isDemoVideo) setIsPlaying(false); }}
         />
       </main>
 
@@ -545,7 +506,7 @@ export default function App() {
             isPlaying={activeIsPlaying}
             onTogglePlayback={handleTogglePlay}
             trackTitle={activeTrack.title}
-            audioSource={isUsingSpotify ? 'Spotify' : isDemoVideo ? '视频曲目' : '本地音频'}
+            audioSource={isUsingSpotify ? 'Spotify' : '本地音频'}
             previewLyrics={currentDemo}
             onPreviewLyrics={lines => setDemoLyrics(lines?.length ? { trackId: activeTrack.id, lines } : null)}
           />

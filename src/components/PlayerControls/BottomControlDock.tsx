@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LightingTheme, Track, TypographyStyle } from '../../types';
 import { FrameMaterial } from '../../constants/frameMaterials';
-import { DEMO_VIDEO } from '../../constants/demoVideo';
 import { Play, Pause, SkipBack, SkipForward, ImagePlus } from 'lucide-react';
 import { displayModes, type ParticleSettings } from '../../visuals/particleSettings';
 import './HardwareControlDock.css';
@@ -153,7 +152,6 @@ export const BottomControlDock: React.FC<BottomControlDockProps> = ({
     if (wasOpen.current && !visualsOpen && !collapsed) visualsButton.current?.focus({ preventScroll: true });
     wasOpen.current = visualsOpen;
   }, [visualsOpen, collapsed]);
-  const isDemoVideo = currentTrack.id === DEMO_VIDEO.id;
   const displayArtist = currentTrack.id === 'weeknd-hongkong' ? 'The Weeknd (feat. Faye Wong)' : currentTrack.artist;
   const [seekPreview, setSeekPreview] = useState<number | null>(null);
   const seekValue = useRef<number | null>(null);
@@ -191,8 +189,8 @@ export const BottomControlDock: React.FC<BottomControlDockProps> = ({
               <div className="gear-display-body">
                 <dl className="gear-display-metadata">
                   <dt>TITLE</dt><dd title={currentTrack.title}>{currentTrack.title || 'UNKNOWN TITLE'}</dd>
-                  <dt>{isDemoVideo ? 'VOCALS' : 'ARTIST'}</dt><dd title={displayArtist}>{displayArtist || 'UNKNOWN ARTIST'}</dd>
-                  <dt>{isDemoVideo ? 'PRODUCER' : 'ALBUM'}</dt><dd title={isDemoVideo ? DEMO_VIDEO.producer : currentTrack.album}>{isDemoVideo ? DEMO_VIDEO.producer : currentTrack.album || 'VITROBOX LIBRARY'}</dd>
+                  <dt>ARTIST</dt><dd title={displayArtist}>{displayArtist || 'UNKNOWN ARTIST'}</dd>
+                  <dt>ALBUM</dt><dd title={currentTrack.album}>{currentTrack.album || 'VITROBOX LIBRARY'}</dd>
                 </dl>
                 <span className="gear-display-vb" aria-hidden="true">VB</span>
               </div>

@@ -7,7 +7,6 @@ import { Chamber3DWalls } from './Chamber3DWalls';
 import { LIGHTING_THEMES } from '../../constants/presets';
 import { Minimize2 } from 'lucide-react';
 import { FRAME_MATERIALS, FrameMaterial, frameMaterialStyle } from '../../constants/frameMaterials';
-import { DEMO_VIDEO } from '../../constants/demoVideo';
 import { cabinetViews, defaultParticleSettings, type ParticleSettings } from '../../visuals/particleSettings';
 import { HardwareDisplay } from './HardwareDisplay';
 import './CabinetScene.css';
@@ -43,13 +42,6 @@ export interface VitroboxSpeakerProps {
   particleSettings?: ParticleSettings;
   onVisualSettingsChange?: (patch: Partial<ParticleSettings>) => void;
   externalPlayback?: boolean;
-  demoVideoUrl?: string;
-  demoVideoRef?: React.RefObject<HTMLVideoElement | null>;
-  onVideoTimeUpdate?: React.ReactEventHandler<HTMLVideoElement>;
-  onVideoLoadedMetadata?: React.ReactEventHandler<HTMLVideoElement>;
-  onVideoPlay?: React.ReactEventHandler<HTMLVideoElement>;
-  onVideoPause?: React.ReactEventHandler<HTMLVideoElement>;
-  onVideoEnded?: React.ReactEventHandler<HTMLVideoElement>;
 }
 
 export const VitroboxSpeaker: React.FC<VitroboxSpeakerProps> = ({
@@ -83,13 +75,6 @@ export const VitroboxSpeaker: React.FC<VitroboxSpeakerProps> = ({
   particleSettings = defaultParticleSettings,
   onVisualSettingsChange,
   externalPlayback = false,
-  demoVideoUrl,
-  demoVideoRef,
-  onVideoTimeUpdate,
-  onVideoLoadedMetadata,
-  onVideoPlay,
-  onVideoPause,
-  onVideoEnded,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [rotation, setRotation] = useState({ pitch: 0, yaw: 0 });
@@ -285,27 +270,6 @@ export const VitroboxSpeaker: React.FC<VitroboxSpeakerProps> = ({
                   transformStyle: 'preserve-3d',
                   transition: 'transform 0.12s ease-out',
                 }}>
-                <video
-                  ref={demoVideoRef}
-                  className={`a2-demo-video ${demoVideoUrl ? '' : 'hidden'}`}
-                  src={demoVideoUrl || DEMO_VIDEO.url}
-                  playsInline
-                  preload={demoVideoUrl ? 'metadata' : 'none'}
-                  onTimeUpdate={onVideoTimeUpdate}
-                  onLoadedMetadata={onVideoLoadedMetadata}
-                  onPlay={onVideoPlay}
-                  onPause={onVideoPause}
-                  onEnded={onVideoEnded}
-                  aria-label="I'm Upping My P(doom) demonstration video"
-                />
-                {demoVideoUrl ? (
-                  <>
-                    <div className="a2-demo-video-grade" aria-hidden="true" />
-                    <div className={`absolute inset-0 bg-gradient-to-br ${activeTheme.bgGradient} opacity-[0.13] mix-blend-soft-light pointer-events-none`} aria-hidden="true" />
-                    <div className="absolute inset-0 pointer-events-none mix-blend-multiply" style={{ backgroundColor: activeTheme.waterTint }} aria-hidden="true" />
-                  </>
-                ) : (
-                  <>
                   <ParticleLyricStage
                     settings={particleSettings}
                     isPlaying={isPlaying}
@@ -320,13 +284,11 @@ export const VitroboxSpeaker: React.FC<VitroboxSpeakerProps> = ({
                     currentTime={currentTime} lyrics={lyrics} showLyrics={particleSettings.showLyrics}
                     title={trackTitle} artist={trackArtist} album={trackAlbum} coverArt={coverArt}
                     tracks={tracks} onSelectTrack={onSelectTrack} audioAnalysis={audioAnalysis} />
-                  </>
-                )}
               </div>
             </div>
 
             {/* === LAYER 2: 3D INNER CHAMBER WALLS (4-Sided Trapezoid Perspective Box) === */}
-            {!demoVideoUrl && displayMode === 'particles' && currentTime < introEndTime && (
+            {displayMode === 'particles' && currentTime < introEndTime && (
               <div
                 className={`a2-idle a2-idle--particle ${coverArt ? 'a2-idle--with-cover' : ''}`}
                 style={{

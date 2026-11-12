@@ -2,7 +2,6 @@ import { KineticLyrics } from './KineticLyrics';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { AudioAnalysis, DisplayMode, LightingTheme, LyricLine, TypographyStyle } from '../../types';
 import { LIGHTING_THEMES } from '../../constants/presets';
-import { DEMO_VIDEO } from '../../constants/demoVideo';
 
 interface AquariumTankCanvasProps {
   mode: DisplayMode;
@@ -14,13 +13,6 @@ interface AquariumTankCanvasProps {
   bassIntensity: number;
   parallaxOffset: { x: number; y: number };
   typographyStyle?: TypographyStyle;
-  demoVideoUrl?: string;
-  demoVideoRef?: React.RefObject<HTMLVideoElement | null>;
-  onVideoTimeUpdate?: React.ReactEventHandler<HTMLVideoElement>;
-  onVideoLoadedMetadata?: React.ReactEventHandler<HTMLVideoElement>;
-  onVideoPlay?: React.ReactEventHandler<HTMLVideoElement>;
-  onVideoPause?: React.ReactEventHandler<HTMLVideoElement>;
-  onVideoEnded?: React.ReactEventHandler<HTMLVideoElement>;
 }
 
 interface Bubble {
@@ -64,13 +56,6 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
   bassIntensity,
   parallaxOffset,
   typographyStyle,
-  demoVideoUrl,
-  demoVideoRef,
-  onVideoTimeUpdate,
-  onVideoLoadedMetadata,
-  onVideoPlay,
-  onVideoPause,
-  onVideoEnded,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const bubblesRef = useRef<Bubble[]>([]);
@@ -676,29 +661,9 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
           transition: 'transform 0.12s ease-out',
         }}
       >
-        {/* The released demo film lives on the recessed backboard, beneath the chamber and hollow drivers. */}
-        {(
-          <>
-            <video
-              ref={demoVideoRef}
-              className={`a2-demo-video ${demoVideoUrl ? '' : 'hidden'}`}
-              src={DEMO_VIDEO.url}
-              playsInline
-              preload="metadata"
-              onTimeUpdate={onVideoTimeUpdate}
-              onLoadedMetadata={onVideoLoadedMetadata}
-              onPlay={onVideoPlay}
-              onPause={onVideoPause}
-              onEnded={onVideoEnded}
-              aria-label="I'm Upping My P(doom) demonstration video"
-            />
-            {demoVideoUrl && <div className="a2-demo-video-grade" aria-hidden="true" />}
-          </>
-        )}
-
         {/* Backboard Diffuser Screen Panel Base Gradient */}
         <div
-          className={`absolute inset-0 bg-gradient-to-br ${activeTheme.bgGradient} transition-colors duration-700 ${demoVideoUrl ? 'opacity-[0.13] mix-blend-soft-light' : ''}`}
+          className={`absolute inset-0 bg-gradient-to-br ${activeTheme.bgGradient} transition-colors duration-700`}
         >
           {/* Frosted LCD Backlight Diffusion Micro-Texture */}
           <div
@@ -741,11 +706,11 @@ export const AquariumTankCanvas: React.FC<AquariumTankCanvasProps> = ({
 
         {/* ---------------- 3. VITROBOX V1 KINETIC TYPOGRAPHY LAYER ---------------- */}
         {/* Positioned at z-index 15, in front of backboard (-80px) and behind speakers (+28px) */}
-        {!demoVideoUrl && !fullscreenLyrics && activeStyle === 'pop_sticker' && renderPopStickerStyle()}
-        {!demoVideoUrl && !fullscreenLyrics && activeStyle === 'swiss_editorial' && renderSwissEditorialStyle()}
-        {!demoVideoUrl && !fullscreenLyrics && activeStyle === 'floating_mist' && renderFloatingMistStyle()}
+        {!fullscreenLyrics && activeStyle === 'pop_sticker' && renderPopStickerStyle()}
+        {!fullscreenLyrics && activeStyle === 'swiss_editorial' && renderSwissEditorialStyle()}
+        {!fullscreenLyrics && activeStyle === 'floating_mist' && renderFloatingMistStyle()}
 
-        {!demoVideoUrl && fullscreenLyrics && <KineticLyrics lyrics={lyrics} currentTime={currentTime} typographyStyle={typographyStyle} theme={theme} />}
+        {fullscreenLyrics && <KineticLyrics lyrics={lyrics} currentTime={currentTime} typographyStyle={typographyStyle} theme={theme} />}
 
         {/* ---------------- 4. WATER MEDIUM TINT & VOLUME REFRACTION ---------------- */}
         <div

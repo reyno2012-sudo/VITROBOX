@@ -1,5 +1,4 @@
 import { Track } from '../types';
-import { DEMO_VIDEO } from './demoVideo';
 import { BAD_GUY_TRACK } from './badGuy';
 
 export const PRESET_TRACKS: Track[] = [
@@ -224,15 +223,6 @@ export const PRESET_TRACKS: Track[] = [
         layoutStyle: 'bottom_left',
       },
     ],
-  },
-  {
-    id: DEMO_VIDEO.id,
-    title: DEMO_VIDEO.title,
-    artist: DEMO_VIDEO.vocals,
-    album: `Produced by ${DEMO_VIDEO.producer}`,
-    duration: 0,
-    videoUrl: DEMO_VIDEO.url,
-    lyrics: [],
   },
 ];
 

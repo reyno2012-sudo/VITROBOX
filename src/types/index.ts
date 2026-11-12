@@ -20,7 +20,6 @@ export interface Track {
   album?: string;
   duration: number; // in seconds
   audioUrl?: string; // audio source URL or blob URL
-  videoUrl?: string; // video track with its own audio
   synthPreset?: 'unstoppable' | 'sunny_day' | 'synthwave' | 'bossa_jazz' | 'lofi_chill';
   lyrics: LyricLine[];
   coverArt?: string;
