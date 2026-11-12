@@ -1,143 +1,80 @@
-/* A fixed identity plate, lit from above left like the control dock. */
-.console-header:has(.vb-metal-nameplate) {
+/* User-designed champagne-gold SVG with a horizontal brushed-metal finish. */
+.console-header:has(.vb-brushed-nameplate) {
   min-height: 64px;
   padding-block: 8px;
 }
 
-.vb-metal-nameplate {
+.vb-brushed-nameplate {
   position: relative;
-  isolation: isolate;
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 12px;
-  height: 48px;
-  padding: 0 19px;
-  border: 1px solid #97998f;
-  border-radius: 5px;
-  background:
-    repeating-linear-gradient(0deg, #ffffff09 0 1px, #565b5105 1px 2px, transparent 2px 4px),
-    linear-gradient(115deg, #f3f1e6, #dbdcd2 36%, #e7e6dc 63%, #c1c4ba);
+  padding: 10px 22px 10px 20px;
+  border-radius: 6px;
+  background-color: #e4e2d8;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.42) 0px, rgba(255,255,255,.42) 1px, rgba(165,162,148,.14) 1px, rgba(165,162,148,.14) 2px),
+    linear-gradient(135deg, rgba(255,255,255,.72) 0%, rgba(232,230,219,.25) 36%, rgba(195,192,178,.35) 68%, rgba(248,247,240,.65) 100%),
+    linear-gradient(180deg, #efeee7 0%, #dcdad0 52%, #cbc8bc 100%);
+  border-top: 1.5px solid #ffffff;
+  border-left: 1.5px solid rgba(255,255,255,.92);
+  border-right: 1px solid #b5b2a6;
+  border-bottom: 2px solid #9e9b8f;
   box-shadow:
-    inset 0 1px 0 #fffef5,
-    inset 1px 0 0 #ffffffb3,
-    inset 0 -1px 0 #9c9f93,
-    0 1px 0 #ffffff9c,
-    0 2px 3px #30362c26;
-  white-space: nowrap;
+    0 8px 20px rgba(0,0,0,.18),
+    inset 0 1px 1px rgba(255,255,255,.95),
+    inset 0 -2px 3px rgba(130,127,115,.45);
+  overflow: hidden;
 }
 
-.vb-plate-rivet {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border: 1px solid #8b9084;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fffef4, #a5aa9e);
-  box-shadow: 0 1px 1px #ffffffd9, inset 0 1px 1px #676e5e52;
+.vb-nameplate-logo {
+  display: block;
+  height: 36px;
+  width: auto;
+  aspect-ratio: 652 / 132;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.92))
+    drop-shadow(0 -.6px 0 rgba(72,48,12,.55))
+    drop-shadow(0 2px 3px rgba(68,46,12,.25));
 }
-.vb-plate-rivet::after {
-  content: '';
-  position: absolute;
-  inset: 1px 0;
-  background: #777e70;
-  transform: rotate(-35deg);
-}
-.vb-plate-rivet.tl { top: 5px; left: 5px; }
-.vb-plate-rivet.tr { top: 5px; right: 5px; }
-.vb-plate-rivet.bl { bottom: 5px; left: 5px; }
-.vb-plate-rivet.br { bottom: 5px; right: 5px; }
 
-.vb-emblem-disc {
-  position: relative;
-  flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
-  border: 1px solid #9da397;
+.vb-screw {
+  position: absolute;
+  left: 6px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background:
-    radial-gradient(circle, #202924 0 24%, #727d70 26% 28%, #d7dbce 30% 34%, #4b554a 37% 42%, #1d2520 45% 53%, transparent 55%),
-    conic-gradient(from 40deg, #798275, #f5f5e9 24%, #707b6d 46%, #c7cdbf 70%, #798275);
-  box-shadow: inset 0 1px 1px #ffffffbd, 0 1px 1px #343f315c, 0 2px 2px #fff9;
+  background: radial-gradient(circle at 35% 35%, #d6d4c9, #8d8a7e 70%, #5c5a51 100%);
+  box-shadow: 0 1px .5px rgba(255,255,255,.95), inset 0 1px 1.5px rgba(0,0,0,.75);
 }
-.vb-emblem-disc::before {
+.vb-screw.top { top: 6px; }
+.vb-screw.bottom { bottom: 6px; }
+.vb-screw::before,
+.vb-screw::after {
   content: '';
   position: absolute;
-  inset: 3px;
-  border: 1px solid #dce1d0a8;
-  border-radius: inherit;
-  box-shadow: 0 0 0 1px #343e3366;
-}
-.vb-emblem-disc::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
+  background: rgba(45,43,38,.78);
+  top: 50%;
   left: 50%;
-  width: 5px;
-  height: 2px;
-  transform: translateX(-50%);
-  border-radius: 1px;
-  background: #bd903c;
-  box-shadow: 0 1px 0 #ffedb0a6;
+  transform: translate(-50%, -50%);
 }
-
-.vb-embossed-wordmark {
-  color: #977024;
-  font: 800 22px/1 ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  letter-spacing: .13em;
-  text-shadow: 0 1px 0 #fff5d9, 0 -1px 0 #77531c3b;
-}
-.vb-etched-groove {
-  flex: 0 0 1px;
-  height: 24px;
-  background: #989f918c;
-  box-shadow: 1px 0 0 #ffffffe0;
-}
-.vb-sunken-lab-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 23px;
-  padding: 0 8px;
-  border: 1px solid #aab09f;
-  border-radius: 3px;
-  background: linear-gradient(#c8cdbf, #dde0d3);
-  box-shadow: inset 0 1px 2px #4b554630, 0 1px 0 #ffffffb3;
-  color: #242b24;
-  font: 600 10px/1 ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  letter-spacing: .06em;
-  text-shadow: 0 1px 0 #ffffff8c;
-}
-.vb-lab-led {
-  width: 4px;
-  height: 4px;
-  flex: 0 0 4px;
-  border-radius: 50%;
-  background: #b2e5d1;
-  box-shadow: 0 0 0 1px #6e9d8a, inset 0 1px 0 #f0fff4, 0 0 4px #87c9ae99;
-}
+.vb-screw::before { width: 3.5px; height: 1px; }
+.vb-screw::after { width: 1px; height: 3.5px; }
 
 @media (max-width: 767px) {
-  .vb-metal-nameplate { height: 42px; gap: 8px; padding-inline: 13px; }
-  .vb-emblem-disc { width: 25px; height: 25px; }
-  .vb-embossed-wordmark { font-size: 18px; letter-spacing: .1em; }
-  .vb-etched-groove { height: 21px; }
-  .vb-sunken-lab-tag { min-height: 21px; gap: 5px; padding-inline: 6px; font-size: 9px; }
+  .vb-brushed-nameplate { padding: 8px 18px; }
+  .vb-nameplate-logo { height: 30px; }
 }
 @media (max-width: 479px) {
-  .console-header:has(.vb-metal-nameplate) { padding-inline: 10px; gap: 8px; }
-  .console-header:has(.vb-metal-nameplate) .console-actions { gap: 6px; }
-  .console-header:has(.vb-metal-nameplate) .console-spotify { width: 34px; height: 34px; justify-content: center; gap: 0; padding: 0; }
-  .console-header:has(.vb-metal-nameplate) .console-spotify > span { display: none; }
-  .vb-metal-nameplate { height: 40px; gap: 6px; padding-inline: 10px; }
-  .vb-emblem-disc { width: 22px; height: 22px; }
-  .vb-embossed-wordmark { font-size: 15px; letter-spacing: .06em; }
-  .vb-etched-groove { height: 19px; }
-  .vb-sunken-lab-tag { gap: 4px; min-height: 19px; padding-inline: 5px; font-size: 8px; letter-spacing: .02em; }
+  .console-header:has(.vb-brushed-nameplate) { padding-inline: 10px; gap: 8px; }
+  .console-header:has(.vb-brushed-nameplate) .console-actions { gap: 6px; }
+  .console-header:has(.vb-brushed-nameplate) .console-spotify { width: 34px; height: 34px; justify-content: center; gap: 0; padding: 0; }
+  .console-header:has(.vb-brushed-nameplate) .console-spotify > span { display: none; }
+  .vb-brushed-nameplate { padding: 8px 14px 8px 16px; }
+  .vb-nameplate-logo { height: 27px; }
+  .vb-screw { left: 5px; }
 }
 @media (max-width: 359px) {
-  .vb-metal-nameplate { gap: 4px; padding-inline: 8px; }
-  .vb-emblem-disc { width: 18px; height: 18px; }
-  .vb-embossed-wordmark { font-size: 13px; }
-  .vb-sunken-lab-tag { font-size: 7.5px; }
+  .vb-brushed-nameplate { padding-right: 12px; }
+  .vb-nameplate-logo { height: 24px; }
 }

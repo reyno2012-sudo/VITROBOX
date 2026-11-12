@@ -377,19 +377,35 @@ export default function App() {
       {/* ---------------- 1. TOP BAR CONTRACT ---------------- */}
       {!isFullscreen && (
         <header className="console-header flex items-center justify-between gap-8 px-6 md:px-10 py-3.5 border-b border-[#1f242d] bg-[#0e1014]/90 backdrop-blur-md z-30 shrink-0">
-          {/* Brushed-metal identity plate */}
-          <div className="vb-metal-nameplate" role="img" aria-label="VITROBOX — Reyno LAB">
-            <span className="vb-plate-rivet tl" aria-hidden="true" />
-            <span className="vb-plate-rivet tr" aria-hidden="true" />
-            <span className="vb-plate-rivet bl" aria-hidden="true" />
-            <span className="vb-plate-rivet br" aria-hidden="true" />
-            <div className="vb-emblem-disc" aria-hidden="true" />
-            <span className="vb-embossed-wordmark">VITROBOX</span>
-            <span className="vb-etched-groove" aria-hidden="true" />
-            <div className="vb-sunken-lab-tag">
-              <span className="vb-lab-led" aria-hidden="true" />
-              <span>Reyno LAB</span>
-            </div>
+          {/* Champagne-gold SVG identity on a brushed-metal plate. */}
+          <div className="vb-brushed-nameplate" role="img" aria-label="VITROBOX">
+            <span className="vb-screw top" aria-hidden="true" />
+            <span className="vb-screw bottom" aria-hidden="true" />
+            <svg className="vb-nameplate-logo" xmlns="http://www.w3.org/2000/svg" viewBox="106 54 652 132" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="vitroboxChampagneGold" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#b88935" />
+                  <stop offset="32%" stopColor="#8c621c" />
+                  <stop offset="68%" stopColor="#a67929" />
+                  <stop offset="100%" stopColor="#694710" />
+                </linearGradient>
+              </defs>
+              <g transform="translate(154, 102)">
+                <path fill="#ffffff" fillRule="evenodd" d="M 0,-42 A 42,42 0 1,0 0,42 A 42,42 0 1,0 0,-42 Z M 0,-15 A 15,15 0 1,1 0,15 A 15,15 0 1,1 0,-15 Z" />
+                <circle cx="0" cy="0" r="28" fill="none" stroke="#c8c5b8" strokeWidth="2.2" />
+              </g>
+              <g fill="none" stroke="url(#vitroboxChampagneGold)" strokeWidth="13.5" strokeLinecap="butt" strokeLinejoin="round">
+                <path d="M 152,106 L 182,174 L 212,106" />
+                <path d="M 244,106 L 244,173 M 226,173 L 262,173" />
+                <path d="M 284,116 L 336,116 M 308,92 L 308,162 A 11,11 0 0,0 319,173 L 334,173" />
+                <path d="M 362,174 L 362,130 A 22,22 0 0,1 384,108 L 402,108" />
+                <rect x="422" y="108" width="66" height="65" rx="32.5" />
+                <path d="M 516,84 L 516,174 M 516,136 A 28,28 0 1,1 516,144" />
+                <circle cx="546" cy="140.5" r="32" />
+                <rect x="602" y="108" width="66" height="65" rx="32.5" />
+                <path d="M 692,108 L 746,173 M 746,108 L 692,173" />
+              </g>
+            </svg>
           </div>
 
           {/* Primary actions */}
