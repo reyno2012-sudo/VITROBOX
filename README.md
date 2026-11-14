@@ -2,6 +2,7 @@
 
 > 🎵 **VITROBOX空间悬浮歌词音箱 · 桌面先锋播放器**  
 > 透明玻璃水箱、双悬浮声学振膜，支持 Spotify 极简免密 PKCE 实时曲库同步与中英双语动态歌词排版。
+<img width="2235" height="1767" alt="封面" src="https://github.com/user-attachments/assets/19b8d4d4-5264-49d1-976d-d980a449862f" />
 
 ---
 
