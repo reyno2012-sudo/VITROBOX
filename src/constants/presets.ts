@@ -1,7 +1,9 @@
 import { Track } from '../types';
 import { BAD_GUY_TRACK } from './badGuy';
+import { CHINA_REGGAETON_TRACK } from './chinaReggaeton';
 
 export const PRESET_TRACKS: Track[] = [
+  CHINA_REGGAETON_TRACK,
   BAD_GUY_TRACK,
   {
     id: 'weeknd-hongkong',
