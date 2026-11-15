@@ -23,7 +23,8 @@
   - 基于 Web Audio API 的实时频域分析（FFT），重低音与人声驱动声学悬浮环产生真实物理位移与形变。
 - **📂 本地音频与歌词拖拽播放**：
   - 支持直接将本地 MP3 / FLAC / WAV / M4A 及 LRC 文件拖拽至窗口直接播放。
-
+<img width="3045" height="1944" alt="image" src="https://github.com/user-attachments/assets/fbff6f55-e9f1-432a-ad96-8924712decb8" />
+歌曲、歌词、专辑信息与spotify完全同步
 ---
 
 ## 🛠️ 技术栈
