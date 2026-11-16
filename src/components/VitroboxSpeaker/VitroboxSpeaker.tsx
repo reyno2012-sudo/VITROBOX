@@ -212,7 +212,7 @@ export const VitroboxSpeaker: React.FC<VitroboxSpeakerProps> = ({
         } as React.CSSProperties}
       >
         {!isFullscreen && <>
-          <div className="cabinet-side cabinet-side--back" aria-hidden="true"><span>VITROBOX · REYNO LAB</span></div>
+          <div className="cabinet-side cabinet-side--back" aria-hidden="true"><span>VITROBOX · REYNO Lab</span></div>
           <div className="cabinet-side cabinet-side--top" aria-hidden="true"><i /><span>VITROBOX / KINETIC SOUND</span><i /></div>
           <div className="cabinet-side cabinet-side--bottom" aria-hidden="true" />
           <div className="cabinet-side cabinet-side--left" aria-hidden="true"><span className="cabinet-vents" /></div>

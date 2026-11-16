@@ -420,7 +420,7 @@ export default function App() {
               type="button"
               onClick={() => setIsContactOpen(true)}
               className="console-contact flex items-center justify-center p-2 rounded-lg shadow-sm transition-all shrink-0 cursor-pointer"
-              title="联系 Reyno LAB"
+              title="联系 Reyno Lab"
               aria-label="联系方式"
             >
               <Mail className="w-4 h-4" />

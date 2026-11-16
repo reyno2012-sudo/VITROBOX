@@ -20,7 +20,7 @@ export function ContactModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     }}>
       <section className="contact-panel" role="dialog" aria-modal="true" aria-labelledby="contact-title">
         <button type="button" className="contact-close" onClick={onClose} aria-label="关闭联系方式"><X size={19} /></button>
-        <div className="contact-panel-topline"><span>VITROBOX / REYNO LAB</span><span>CONTACT · 001</span></div>
+        <div className="contact-panel-topline"><span>VITROBOX / REYNO Lab</span><span>CONTACT · 001</span></div>
         <h2 id="contact-title">保持联系<span className="contact-title-dot">.</span></h2>
         <p className="contact-intro">感谢支持 VITROBOX，让这件作品继续生长。</p>
 
@@ -50,7 +50,7 @@ export function ContactModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
             <small>使用支付宝扫一扫</small>
           </div>
         </div>
-        <div className="contact-footer"><span>INDEPENDENT EXPERIMENTAL AUDIO INTERFACE</span><span>REYNO LAB © 2026</span></div>
+        <div className="contact-footer"><span>INDEPENDENT EXPERIMENTAL AUDIO INTERFACE</span><span>REYNO Lab © 2026</span></div>
       </section>
     </div>
   );

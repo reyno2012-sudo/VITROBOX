@@ -93,7 +93,7 @@ export const HardwareKnobs: React.FC<HardwareKnobsProps> = ({
           VITROBOX
         </span>
         <span className="text-[10px] font-mono text-[#8a929d] tracking-wider">
-          Reyno LAB
+          Reyno Lab
         </span>
       </div>
 
